@@ -8,11 +8,11 @@ abstract class Measurement {
         this.statCode = statCode;
     }
 
-    getStatCode():StatCode {
+    public getStatCode():StatCode {
         return this.statCode;
     }
 
-    abstract update(data: JSON): void;
+    abstract update(data: object): void;
 
-    abstract toJSON(): JSON;
+    abstract toJSON(): object;
 }
