@@ -1,3 +1,6 @@
+/**
+ * Base Subject class as the target of the Observer
+ */
 class Subject {
     private observers : Set<Observer>;
 

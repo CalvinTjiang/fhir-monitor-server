@@ -65,6 +65,12 @@ class Patient {
     }
     
     public toJSON(): object {
-        return {givenName: this.givenName, familyName:this.familyName, gender: this.gender, address: this.address.toJSON};
+        return {
+            id: this.id,
+            givenName: this.givenName, 
+            familyName:this.familyName, 
+            gender: this.gender, 
+            address: this.address.toJSON
+        };
     }
 }

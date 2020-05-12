@@ -2,12 +2,12 @@
  * The currently logged in Practitioner
  */
 class Practitioner {
-    private ID: string;
+    private identifier: string;
     private patients: Array<Patient>;
     private monitors: Array<Monitor>;
 
-    constructor(ID: string) {
-        this.ID = ID;
+    constructor(identifier: string) {
+        this.identifier = identifier;
         this.patients = [];
         this.monitors = [];
     }
