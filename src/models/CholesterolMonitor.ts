@@ -35,7 +35,8 @@ abstract class CholesterolMonitor extends Monitor {
                 return response.json()
             }).then(data => {
                 let newUpdate : boolean = false;
-
+                let totalCholesterol : number = 0;
+                let totalMeasurement : number = 0;
                 // for each entry on the response
                 for (let entry of data.entry){
                     // Get the required data and object reference
@@ -54,11 +55,20 @@ abstract class CholesterolMonitor extends Monitor {
                     if (measurement !== null){
                         if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
                             newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
+                            totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                            totalMeasurement += 1;
                         }
                     } else {
                         patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
                         newUpdate = true;
+                        totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                        totalMeasurement += 1;
                     }
+                }
+                if (totalMeasurement === 0){
+                    CholesterolMeasurement.setAverage(0);
+                }else{
+                    CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
                 }
                 return newUpdate
             });

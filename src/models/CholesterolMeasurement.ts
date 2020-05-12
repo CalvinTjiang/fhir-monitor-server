@@ -7,8 +7,13 @@ interface ICholesterolMeasurement {
  * A CholesterolMeasurement class with total cholesterol
  */
 class CholesterolMeasurement extends Measurement {
+    private static averageTotalCholesterol : number;
     private totalCholesterol: number;
     private unit : string;
+
+    public static setAverage(averageTotalCholesterol : number) : void{
+        CholesterolMeasurement.averageTotalCholesterol = averageTotalCholesterol;
+    }
 
     constructor(data: ICholesterolMeasurement) {
         super(StatCode.TOTAL_CHOLESTEROL, data.effectiveDateTime);
@@ -59,11 +64,12 @@ class CholesterolMeasurement extends Measurement {
      * Get this Measurement's JSON (primitive object) form.
      * @returns this method returns this Measurement's JSON (primitive object) form
      */
-    public toJSON() : ICholesterolMeasurement{
+    public toJSON() : object{
         return {
             effectiveDateTime: this.effectiveDateTime,
             totalCholesterol : this.totalCholesterol,
             unit : this.unit,
+            isAboveAverage : this.totalCholesterol > CholesterolMeasurement.averageTotalCholesterol
         };
     }
 
