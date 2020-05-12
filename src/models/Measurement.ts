@@ -30,7 +30,15 @@ abstract class Measurement {
         this.effectiveDateTime = effectiveDateTime;
         return true
     }
-    
+
+    /**
+     * Get this Measurement's effective date time.
+     * @returns return date object
+     */
+    public getEffectiveDateTime() : Date{
+        return this.effectiveDateTime;
+    }
+
     abstract update(data: object): boolean;
 
     abstract toJSON(): object;

@@ -19,12 +19,14 @@ abstract class CholesterolMonitor extends Monitor {
 
             patientsDictionary[patient.getId()] = patient;
 
+            // Construct the querystring for patient
             if (patientString.length !== 0){
                 patientString =  patientString + ",";
             }
-
             patientString = patientString + patient.getId();
         }
+
+        // Get the observation data for the statCode
         return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${this.getStatCode()}&patient=${patientString}`)
             .then(response => {
                 if (!response.ok) {
@@ -33,17 +35,26 @@ abstract class CholesterolMonitor extends Monitor {
                 return response.json()
             }).then(data => {
                 let newUpdate : boolean = false;
+
+                // for each entry on the response
                 for (let entry of data.entry){
+                    // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(this.getStatCode())
+                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(this.getStatCode());
+
+                    // Compile the data as dictionary
                     let cholesterolMeasurement = {
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
                         unit : resource.valueQuantity.unit
                     }
+
+                    // Update the measurement
                     if (measurement !== null){
-                        newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
+                        if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
+                            newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
+                        }
                     } else {
                         patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
                         newUpdate = true;
