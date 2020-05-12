@@ -60,6 +60,10 @@ class Patient {
         return null;
     }
 
+    public addMeasurement(measurement : Measurement) : void {
+        this.measurements.push(measurement);
+    }
+    
     public toJSON(): object {
         return {givenName: this.givenName, familyName:this.familyName, gender: this.gender, address: this.address.toJSON};
     }

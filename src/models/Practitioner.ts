@@ -33,7 +33,7 @@ class Practitioner {
      * @param statCode a statCode enumeration
      * @returns this method returns a Monitor if the statCode exists, null otherwise.
      */
-    public getMonitor(statCode: StatCode): Monitor{
+    public getMonitor(statCode: StatCode): Monitor | null{
         for (let index:number = 0; index < this.monitors.length; index++) {
             if (this.monitors[index].getStatCode() == statCode) {
                 return this.monitors[index];
