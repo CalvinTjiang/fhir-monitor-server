@@ -20,6 +20,12 @@ class Patient {
     }
 
     /**
+     * getId
+     */
+    public getId(): string {
+        return this.id;
+    }
+    /**
      * getGivenName
      */
     public getGivenName(): string {
