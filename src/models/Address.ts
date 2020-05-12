@@ -11,4 +11,8 @@ class Address {
         this.state = state;
         this.country = country;
     }
+
+    public toJSON(): object {
+        return {city: this.city, state: this.state, country: this.country};
+    }
 }
