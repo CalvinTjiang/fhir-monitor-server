@@ -34,6 +34,9 @@ abstract class CholesterolMonitor extends Monitor {
                 }
                 return response.json()
             }).then(data => {
+                if (data.total === 0){
+                    return false
+                }
                 let newUpdate : boolean = false;
                 let totalCholesterol : number = 0;
                 let totalMeasurement : number = 0;

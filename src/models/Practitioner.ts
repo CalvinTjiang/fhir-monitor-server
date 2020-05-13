@@ -13,11 +13,28 @@ class Practitioner {
     }
 
     /**
+     * Get practitioner's identifier.
+     * @returns returns the practitioner's identifier.
+     */
+    public getIdentifier(): string{
+        return this.identifier;
+    }
+
+
+    /**
      * Add a patient to this Practitioner.
      * @param patient a Patient object to add to this practitioner patients list
      */
     public addPatient(patient: Patient): void {
         this.patients.push(patient);
+    }
+
+    /**
+     * Get practitioner's patients.
+     * @returns returns all practitioner's patients.
+     */
+    public getPatients(): Array<Patient>{
+        return this.patients;
     }
 
     /**
