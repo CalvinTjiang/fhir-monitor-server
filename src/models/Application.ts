@@ -1,4 +1,4 @@
-class Application extends Subject{
+export default class Application extends Subject{
     private user : Practitioner | null;
 
     constructor() {
@@ -91,5 +91,31 @@ class Application extends Subject{
      */
     public getUser() : Practitioner | null{
         return this.user;
+    }
+
+    /**
+     * Add a monitor with the specified statcode to current user
+     * @param statCode statcode of the new monitor
+     */
+    public addMonitor(statCode: StatCode) {
+        this.user?.addMonitor(statCode);
+    }
+
+    /**
+     * Add a Patient to a monitor
+     * @param statCode the type of monitor
+     * @param ID id of the patient to add to the monitor
+     */
+    public addMonitoredPatient(statCode:StatCode, ID:string) {
+        this.user?.addMonitoredPatient(statCode, ID);
+    }
+
+    /**
+     * Remove a Patient to a monitor
+     * @param statCode the type of monitor
+     * @param ID id of the patient to add to the monitor
+     */
+    public removeMonitoredPatient(statCode:StatCode, ID:string) {
+        this.user?.removeMonitoredPatient(statCode, ID);
     }
 }
