@@ -3,6 +3,7 @@ import GUI from '../views/GUI';
 import ControllerObserver from './ControllerObserver';
 import { IPractitioner } from '../models/Practitioner';
 import { IMonitor } from '../models/Monitor';
+import MonitorPage from '../views/MonitorPage';
 /**
  * Controller class for managing input from user
  * 
@@ -19,68 +20,126 @@ class Controller {
 
         // create a new observer
         let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socket);
-        // this.model.addObserver(controllerObserver);
+        this.model.addObserver(StatCode.TOTAL_CHOLESTEROL, controllerObserver);
+        
         this.observers.push(controllerObserver);
+        this.view.addMonitorPage(new MonitorPage(__dirname + "/resources/cholesterol-monitor.html", StatCode.TOTAL_CHOLESTEROL))
     }
 
     /**
      * Validate the ID of practitioner, open the patien list page if the Practitioner exists
      * @param ID string ID of practitioner
      */
-    public validateId(ID: string) {
-        this.model.validateID(ID).then((res: Boolean) => {
-            if (res) {
-                this.view.patientListPage();
-            }
-        })
+    public validateId(ID: string): Promise<boolean> {
+        return this.model.validateID(ID);
     }
 
+    /**
+     * Get the login page
+     * @returns a Promise object that will return the HTML data in string form
+     */
     public loginPage() : Promise<string> {
-        return this.view.login();
+        return this.view.loginPage();
     }
 
+    /**
+     * Get the patient details and measurement detail
+     * @param statCode a statCode enumeration
+     * @returns array of object that contain the patient and measurement details.
+     */
     public indexPage() : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let patients: Array<IPatient> | undefined = this.model.getUser()?.getPatients().map(patient => patient.toJSON());
-
-        return this.view.indexPage(user, patients);
+        if (user !== undefined && patients !== undefined){
+            if (patients !== undefined){
+                return this.view.indexPage(user, patients);
+            }
+            return this.view.noPatientPage(user);
+        }
+        return this.loginPage();
     }
 
+    /**
+     * Get the patient details page
+     * @param ID a string that represent the patient id
+     * @returns a Promise object that will return the HTML data in string form
+     */
     public patientPage(ID: string) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let patient: IPatient | undefined = this.model.getUser()?.getPatient(ID)?.toJSON();
-
-        return this.view.patientPage(user, patient);
+        if (user !== undefined){
+            if (patient !== undefined){
+                return this.view.patientPage(user, patient);
+            }
+            return this.notFoundPage();
+        }
+        return this.loginPage();
     }
 
-    public getMonitorPage(statCode: StatCode) : Promise<string>{
+    /**
+     * Get the monitored patients list page
+     * @param statCode statCode enumeration for selecting monitor
+     * @returns a Promise object that will return the HTML data in string form
+     */
+    public monitorListPage(statCode: StatCode) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
-
-        return this.view.getMonitorPage(statCode, user, monitor);
+        if (user !== undefined && monitor !== undefined){
+            if (monitor !== undefined){
+                return this.view.monitorListPage(statCode, user, monitor);
+            }
+            return this.view.noPatientPage(user);
+        }
+        return this.loginPage();
     }
 
-    public selectionPage(statCode: StatCode) : Promise<string> {
+    /**
+     * Get the monitored patients selection page
+     * @param statCode statCode enumeration for selecting monitor
+     * @returns a Promise object that will return the HTML data in string form
+     */
+    public monitorSelectionPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
-        let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
-
-        return this.view.selectionPage(statCode, user, monitor);
+        let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getPatientsWithMeasurement(statCode);
+        if (user !== undefined && monitor !== undefined){
+            if (monitor !== undefined){
+                return this.view.monitorSelectionPage(statCode, user, monitor);
+            }
+            return this.view.noPatientPage(user);
+        }
+        return this.loginPage();
     }
 
+    /**
+     * Get the monitor setting page
+     * @param statCode statCode enumeration for selecting monitor
+     * @returns a Promise object that will return the HTML data in string form
+     */
+    public monitorSettingPage(statCode: StatCode) : Promise<string> {
+        let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
+        if (user !== undefined ){
+            return this.view.monitorSettingPage(statCode, user);
+        }
+        return this.loginPage();
+    }
+
+    /**
+     * Get the error 404 : not found page
+     * @returns a Promise object that will return the HTML data in string form
+     */
     public notFoundPage() : Promise<string> {
-        return this.view.notFoundPage();
+        let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
+        if (user !== undefined ){
+            return this.view.notFoundPage(user);
+        }
+        return this.loginPage();
     }
-
-    public settingPage() : Promise<string> {
-        return this.view.settingPage();
-    }
-
 
     /**
      * Create a new Monitor
      * @param statCode statCode of new Monitor
      */
-    public addMonitor(statCode: StatCode) {
+    public addMonitor(statCode: StatCode) : void {
         this.model.addMonitor(statCode);
     }
 
@@ -89,7 +148,7 @@ class Controller {
      * @param statCode statcode of monitor
      * @param ID ID of patient
      */
-    public addMonitoredPatient(statCode: StatCode, ID: string) {
+    public addMonitoredPatient(statCode: StatCode, ID: string) : void{
         this.model.addMonitoredPatient(statCode, ID);
     }
 
@@ -98,7 +157,7 @@ class Controller {
      * @param statCode statcode of monitor
      * @param ID id of patient
      */
-    public removeMonitoredPatient(statCode:StatCode, ID:string) {
+    public removeMonitoredPatient(statCode:StatCode, ID:string) : void{
         this.model.removeMonitoredPatient(statCode, ID);
     }
 

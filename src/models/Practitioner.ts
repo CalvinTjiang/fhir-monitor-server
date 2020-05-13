@@ -1,4 +1,4 @@
-import Monitor from "./Monitor";
+import Monitor, { IMonitor } from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
 import fetch from "node-fetch";
 
@@ -157,6 +157,30 @@ export default class Practitioner {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the patient details and measurement detail
+     * @param statCode a statCode enumeration
+     * @returns array of object that contain the patient and measurement details.
+     */
+    public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitor>{
+        let copyPatients : Array<IMonitor> = [];
+        for (let patient of this.patients){
+            let measurement : Measurement | null = patient.getMeasurement(statCode);
+            if (measurement === null){
+                copyPatients.push({
+                    patient : patient.toJSON(), 
+                    measurement : measurement
+                });
+            } else {
+                copyPatients.push({
+                    patient : patient.toJSON(), 
+                    measurement : measurement.toJSON()
+                });
+            }
+        }
+        return copyPatients;
     }
 
     /**
