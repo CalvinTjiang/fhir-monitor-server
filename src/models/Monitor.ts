@@ -1,15 +1,21 @@
+import Subject from "./Subject";
+
 /**
  * Abstract class measurement for measurements of patient's vital
  */
-abstract class Monitor {
+export default abstract class Monitor extends Subject{
+    private static readonly MIN_UPDATE_INTERVAL = 30000;
     private title: string;
     private statCode: StatCode;
+    private updateInterval : number;
     protected patients : Set<Patient>;
 
     constructor(title : string, statCode : StatCode){
+        super();
         this.title = title;
         this.statCode = statCode;
         this.patients = new Set<Patient>();
+        this.updateInterval = Monitor.MIN_UPDATE_INTERVAL;
     }
 
     /**
@@ -28,6 +34,32 @@ abstract class Monitor {
             }
         }
         return copyPatients;
+    }
+
+    /**
+     * run a continous check on the FHIR server and inform the observer if any update occurs
+     * @returns a promise boolean that indicate if any update has occurs
+     */
+    public update() : void{
+        this.getFHIRData().then((res : boolean) => {
+            if (res){
+                this.notify();
+            }
+            setTimeout(this.update, this.updateInterval);
+        })
+    }
+
+    /**
+     * Set this monitor's update interval.
+     * @param updateInterval the update interval (on milliseconds)
+     * @returns return a boolean, false if the new update interval lower than the MIN_UPDATE_INTERVAL
+     */
+    public setUpdateInterval(updateInterval : number) : boolean{
+        if (updateInterval < Monitor.MIN_UPDATE_INTERVAL){
+            return false;
+        }
+        this.updateInterval = updateInterval;
+        return true
     }
 
     /**

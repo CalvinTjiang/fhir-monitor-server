@@ -1,7 +1,8 @@
+import Observer from '../observers/Observer'
 /**
  * Base Subject class as the target of the Observer
  */
-class Subject {
+export default class Subject {
     private observers : Set<Observer>;
 
     constructor(){
