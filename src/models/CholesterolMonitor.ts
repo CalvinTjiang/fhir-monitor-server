@@ -1,7 +1,7 @@
 /**
  * Abstract class measurement for measurements of patient's vital
  */
-abstract class CholesterolMonitor extends Monitor {
+class CholesterolMonitor extends Monitor {
     constructor(title : string){
         super(title, StatCode.TOTAL_CHOLESTEROL);
     }
