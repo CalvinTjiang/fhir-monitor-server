@@ -1,7 +1,7 @@
-interface ICholesterolMeasurement {
-    effectiveDateTime: Date,
+interface ICholesterolMeasurement extends IMeasurement{
     totalCholesterol : number,
-    unit : string
+    unit : string,
+    isAboveAverage : boolean
 }
 /**
  * A CholesterolMeasurement class with total cholesterol
@@ -64,8 +64,9 @@ class CholesterolMeasurement extends Measurement {
      * Get this Measurement's JSON (primitive object) form.
      * @returns this method returns this Measurement's JSON (primitive object) form
      */
-    public toJSON() : object{
+    public toJSON() : ICholesterolMeasurement{
         return {
+            statCode : this.statCode,
             effectiveDateTime: this.effectiveDateTime,
             totalCholesterol : this.totalCholesterol,
             unit : this.unit,

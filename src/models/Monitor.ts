@@ -1,5 +1,8 @@
 import Subject from "./Subject";
-
+export interface IMonitor{
+    patient : IPatient,
+    measurement : IMeasurement | null
+}
 /**
  * Abstract class measurement for measurements of patient's vital
  */
@@ -16,21 +19,28 @@ export default abstract class Monitor extends Subject{
         this.statCode = statCode;
         this.patients = new Set<Patient>();
         this.updateInterval = Monitor.MIN_UPDATE_INTERVAL;
+        setTimeout(this.update, this.updateInterval);
     }
 
     /**
      * Get the patient details and measurement detail
      * @returns array of object that contain the patient and measurement details.
      */
-    public getPatientsWithMeasurement() : Array<[object, object | null]>{
-        let copyPatients : Array<[object, object | null]> = [];
+    public getPatientsWithMeasurement() : Array<IMonitor>{
+        let copyPatients : Array<IMonitor> = [];
         for (let value of this.patients.entries()){
-            let patient : Patient= value[0];
-            let measurement : Measurement | null = patient.getMeasurement(this.statCode);
+            let currentPatient : Patient= value[0];
+            let measurement : Measurement | null = currentPatient.getMeasurement(this.statCode);
             if (measurement === null){
-                copyPatients.push([patient.toJSON(), measurement]);
+                copyPatients.push({
+                    patient : currentPatient.toJSON(), 
+                    measurement : measurement
+                });
             } else {
-                copyPatients.push([patient.toJSON(), measurement.toJSON()]);
+                copyPatients.push({
+                    patient : currentPatient.toJSON(), 
+                    measurement : measurement.toJSON()
+                });
             }
         }
         return copyPatients;

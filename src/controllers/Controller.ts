@@ -17,7 +17,7 @@ class Controller {
 
         // create a new observer
         let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socket);
-        this.model.addObserver(controllerObserver);
+        // this.model.addObserver(controllerObserver);
         this.observers.push(controllerObserver);
     }
 

@@ -12,12 +12,8 @@ export default class ControllerObserver implements Observer {
         this.socket = socket;
     }
 
-    public informClient(): void {
-        this.socket.emit(this.code);
-    }
-
     public update(): void {
-        this.informClient();
+        this.socket.emit(this.code);
     }
     
 }

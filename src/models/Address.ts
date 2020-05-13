@@ -1,3 +1,8 @@
+interface IAddress {
+    city: string, 
+    state: string, 
+    country: string
+}
 /**
  * Address of a patient
  */
@@ -12,7 +17,7 @@ class Address {
         this.country = country;
     }
 
-    public toJSON(): object {
+    public toJSON(): IAddress {
         return {city: this.city, state: this.state, country: this.country};
     }
 }

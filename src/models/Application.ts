@@ -27,7 +27,9 @@ export default class Application{
                 // Implement checking
                 let entry = data.entry[0];
                 let identifier : string = entry.identifier[0].system + "|" + entry.identifier[0].value;
-                this.user = new Practitioner(identifier);
+                let name : string = entry.name[0].prefix[0] + entry.name[0].given[0] + entry.name[0].family;
+                let email : string = entry.telecom[0].value;
+                this.user = new Practitioner(identifier, name, email);
                 return this.user.getFHIRPatient()
                     .then((res : boolean)=>{
                         return this.user?.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL) || res;

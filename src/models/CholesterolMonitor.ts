@@ -52,9 +52,11 @@ export default class CholesterolMonitor extends Monitor {
 
                     // Compile the data as dictionary
                     let cholesterolMeasurement = {
+                        statCode: this.getStatCode(),
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
-                        unit : resource.valueQuantity.unit
+                        unit : resource.valueQuantity.unit,
+                        isAboveAverage : false
                     }
 
                     // Update the measurement

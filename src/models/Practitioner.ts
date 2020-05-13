@@ -2,6 +2,11 @@ import Monitor from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
 import fetch from "node-fetch";
 
+export interface IPractitioner{
+    identifier : string,
+    name : string,
+    email : string
+}
 /**
  * The currently logged in Practitioner
  */
@@ -9,9 +14,12 @@ export default class Practitioner {
     private identifier: string;
     private patients: Array<Patient>;
     private monitors: Array<Monitor>;
-
-    constructor(identifier: string) {
+    private name : string;
+    private email : string;
+    constructor(identifier: string, name : string, email : string) {
         this.identifier = identifier;
+        this.name = name;
+        this.email = email
         this.patients = [];
         this.monitors = [];
     }
@@ -42,7 +50,7 @@ export default class Practitioner {
                             );
                             this.patients.push(new Patient(
                                 resource.id,
-                                resource.name[0].given,
+                                resource.name[0].given[0],
                                 resource.name[0].family,
                                 new Date(resource.birthDate),
                                 resource.gender,
@@ -96,9 +104,11 @@ export default class Practitioner {
 
                     // Compile the data as dictionary
                     let cholesterolMeasurement = {
+                        statCode: statcode,
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
-                        unit : resource.valueQuantity.unit
+                        unit : resource.valueQuantity.unit,
+                        isAboveAverage : false
                     }
 
                     // Update the measurement
@@ -204,5 +214,13 @@ export default class Practitioner {
         if (monitor && patient) {
             monitor.removePatient(patient);
         }
+    }
+
+    public toJSON() : IPractitioner{
+        return {
+            identifier : this.identifier,
+            name : this.name,
+            email : this.email
+        };
     }
 }
