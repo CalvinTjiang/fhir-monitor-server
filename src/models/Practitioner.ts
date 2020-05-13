@@ -1,7 +1,11 @@
+import Monitor from "./Monitor";
+import CholesterolMonitor from "./CholesterolMonitor";
+import fetch from "node-fetch";
+
 /**
  * The currently logged in Practitioner
  */
-class Practitioner {
+export default class Practitioner {
     private identifier: string;
     private patients: Array<Patient>;
     private monitors: Array<Monitor>;
@@ -13,20 +17,119 @@ class Practitioner {
     }
 
     /**
+     * Get the patient data encountered by the user from FHIR server
+     * @returns a promise boolean that indicate if there are any patient
+     */
+    public getFHIRPatient() : Promise<boolean>{
+        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response.json()
+            }).then(data => {
+                if (data.total === 0){
+                    return false;
+                }
+                for (let entry of data.entry){
+                    let resource = entry.resource;
+                    if (resource.resourceType === "Patient"){
+                        if (resource.deceasedDateTime === undefined){
+                            let address : Address = new Address(
+                                resource.address.city,
+                                resource.address.state,
+                                resource.address.country
+                            );
+                            this.patients.push(new Patient(
+                                resource.id,
+                                resource.name[0].given,
+                                resource.name[0].family,
+                                new Date(resource.birthDate),
+                                resource.gender,
+                                address
+                            ))
+                        }
+                    }
+                }
+                return true;
+        })
+    }
+
+    /**
+     * Get the measurement data for all practioner's patient from FHIR Server
+     * @returns a promise boolean that indicate if any update has occurs
+     */
+    public getFHIRPatientMeasurement(statcode : StatCode) : Promise<boolean>{
+        let PATIENT = "Patient/".length;
+        let patientString : string = "";
+        let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
+        for (let patient of this.patients){
+            patientsDictionary[patient.getId()] = patient;
+
+            // Construct the querystring for patient
+            if (patientString.length !== 0){
+                patientString =  patientString + ",";
+            }
+            patientString = patientString + patient.getId();
+        }
+
+        // Get the observation data for the statCode
+        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${statcode}&patient=${patientString}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response.json()
+            }).then(data => {
+                if (data.total === 0){
+                    return false
+                }
+                let newUpdate : boolean = false;
+                let totalCholesterol : number = 0;
+                let totalMeasurement : number = 0;
+                // for each entry on the response
+                for (let entry of data.entry){
+                    // Get the required data and object reference
+                    let resource = entry.resource;
+                    let patientId : string = resource.subject.reference.slice(PATIENT);
+                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(statcode);
+
+                    // Compile the data as dictionary
+                    let cholesterolMeasurement = {
+                        effectiveDateTime : new Date(resource.effectiveDateTime),
+                        totalCholesterol : resource.valueQuantity.value,
+                        unit : resource.valueQuantity.unit
+                    }
+
+                    // Update the measurement
+                    if (measurement !== null){
+                        if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
+                            newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
+                            totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                            totalMeasurement += 1;
+                        }
+                    } else {
+                        patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
+                        newUpdate = true;
+                        totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                        totalMeasurement += 1;
+                    }
+                }
+                if (totalMeasurement === 0){
+                    CholesterolMeasurement.setAverage(0);
+                }else{
+                    CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
+                }
+                return newUpdate
+            });
+    }
+    
+    /**
      * Get practitioner's identifier.
      * @returns returns the practitioner's identifier.
      */
     public getIdentifier(): string{
         return this.identifier;
-    }
-
-
-    /**
-     * Add a patient to this Practitioner.
-     * @param patient a Patient object to add to this practitioner patients list
-     */
-    public addPatient(patient: Patient): void {
-        this.patients.push(patient);
     }
 
     /**
