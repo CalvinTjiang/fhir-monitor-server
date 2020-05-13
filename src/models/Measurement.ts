@@ -1,3 +1,7 @@
+interface IMeasurement{
+    statCode : string,
+    effectiveDateTime: Date,
+}
 /**
  * Abstract class measurement for measurements of patient's vital
  */
@@ -30,8 +34,16 @@ abstract class Measurement {
         this.effectiveDateTime = effectiveDateTime;
         return true
     }
-    
+
+    /**
+     * Get this Measurement's effective date time.
+     * @returns return date object
+     */
+    public getEffectiveDateTime() : Date{
+        return this.effectiveDateTime;
+    }
+
     abstract update(data: object): boolean;
 
-    abstract toJSON(): object;
+    abstract toJSON(): IMeasurement;
 }

@@ -1,14 +1,19 @@
-interface ICholesterolMeasurement {
-    effectiveDateTime: Date,
+interface ICholesterolMeasurement extends IMeasurement{
     totalCholesterol : number,
-    unit : string
+    unit : string,
+    isAboveAverage : boolean
 }
 /**
  * A CholesterolMeasurement class with total cholesterol
  */
 class CholesterolMeasurement extends Measurement {
+    private static averageTotalCholesterol : number;
     private totalCholesterol: number;
     private unit : string;
+
+    public static setAverage(averageTotalCholesterol : number) : void{
+        CholesterolMeasurement.averageTotalCholesterol = averageTotalCholesterol;
+    }
 
     constructor(data: ICholesterolMeasurement) {
         super(StatCode.TOTAL_CHOLESTEROL, data.effectiveDateTime);
@@ -61,9 +66,11 @@ class CholesterolMeasurement extends Measurement {
      */
     public toJSON() : ICholesterolMeasurement{
         return {
+            statCode : this.statCode,
             effectiveDateTime: this.effectiveDateTime,
             totalCholesterol : this.totalCholesterol,
             unit : this.unit,
+            isAboveAverage : this.totalCholesterol > CholesterolMeasurement.averageTotalCholesterol
         };
     }
 

@@ -1,31 +1,199 @@
+import Monitor, { IMonitor } from "./Monitor";
+import CholesterolMonitor from "./CholesterolMonitor";
+import fetch from "node-fetch";
+
+export interface IPractitioner{
+    identifier : string,
+    name : string,
+    email : string
+}
 /**
  * The currently logged in Practitioner
  */
-class Practitioner {
-    private ID: string;
+export default class Practitioner {
+    private identifier: string;
     private patients: Array<Patient>;
     private monitors: Array<Monitor>;
-
-    constructor(ID: string) {
-        this.ID = ID;
+    private name : string;
+    private email : string;
+    constructor(identifier: string, name : string, email : string) {
+        this.identifier = identifier;
+        this.name = name;
+        this.email = email
         this.patients = [];
         this.monitors = [];
     }
 
     /**
-     * Add a patient to this Practitioner.
-     * @param patient a Patient object to add to this practitioner patients list
+     * Get the patient data encountered by the user from FHIR server
+     * @returns a promise boolean that indicate if there are any patient
      */
-    public addPatient(patient: Patient): void {
-        this.patients.push(patient);
+    public getFHIRPatient() : Promise<boolean>{
+        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response.json()
+            }).then(data => {
+                if (data.total === 0){
+                    return false;
+                }
+                for (let entry of data.entry){
+                    let resource = entry.resource;
+                    if (resource.resourceType === "Patient"){
+                        if (resource.deceasedDateTime === undefined){
+                            let address : Address = new Address(
+                                resource.address.city,
+                                resource.address.state,
+                                resource.address.country
+                            );
+                            this.patients.push(new Patient(
+                                resource.id,
+                                resource.name[0].given[0],
+                                resource.name[0].family,
+                                new Date(resource.birthDate),
+                                resource.gender,
+                                address
+                            ))
+                        }
+                    }
+                }
+                return true;
+        })
+    }
+
+    /**
+     * Get the measurement data for all practioner's patient from FHIR Server
+     * @returns a promise boolean that indicate if any update has occurs
+     */
+    public getFHIRPatientMeasurement(statcode : StatCode) : Promise<boolean>{
+        let PATIENT = "Patient/".length;
+        let patientString : string = "";
+        let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
+        for (let patient of this.patients){
+            patientsDictionary[patient.getId()] = patient;
+
+            // Construct the querystring for patient
+            if (patientString.length !== 0){
+                patientString =  patientString + ",";
+            }
+            patientString = patientString + patient.getId();
+        }
+
+        // Get the observation data for the statCode
+        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${statcode}&patient=${patientString}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+                return response.json()
+            }).then(data => {
+                if (data.total === 0){
+                    return false
+                }
+                let newUpdate : boolean = false;
+                let totalCholesterol : number = 0;
+                let totalMeasurement : number = 0;
+                // for each entry on the response
+                for (let entry of data.entry){
+                    // Get the required data and object reference
+                    let resource = entry.resource;
+                    let patientId : string = resource.subject.reference.slice(PATIENT);
+                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(statcode);
+
+                    // Compile the data as dictionary
+                    let cholesterolMeasurement = {
+                        statCode: statcode,
+                        effectiveDateTime : new Date(resource.effectiveDateTime),
+                        totalCholesterol : resource.valueQuantity.value,
+                        unit : resource.valueQuantity.unit,
+                        isAboveAverage : false
+                    }
+
+                    // Update the measurement
+                    if (measurement !== null){
+                        if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
+                            newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
+                            totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                            totalMeasurement += 1;
+                        }
+                    } else {
+                        patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
+                        newUpdate = true;
+                        totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                        totalMeasurement += 1;
+                    }
+                }
+                if (totalMeasurement === 0){
+                    CholesterolMeasurement.setAverage(0);
+                }else{
+                    CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
+                }
+                return newUpdate
+            });
+    }
+    
+    /**
+     * Get practitioner's identifier.
+     * @returns returns the practitioner's identifier.
+     */
+    public getIdentifier(): string{
+        return this.identifier;
+    }
+
+    /**
+     * Get practitioner's patients.
+     * @returns returns all practitioner's patients.
+     */
+    public getPatients(): Array<Patient>{
+        return this.patients;
+    }
+
+    public getPatient(ID: string): Patient | null{
+        for (let i:number = 0; i < this.patients.length; i ++) {
+            if (this.patients[i].getId() == ID) {
+                return this.patients[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the patient details and measurement detail
+     * @param statCode a statCode enumeration
+     * @returns array of object that contain the patient and measurement details.
+     */
+    public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitor>{
+        let copyPatients : Array<IMonitor> = [];
+        for (let patient of this.patients){
+            let measurement : Measurement | null = patient.getMeasurement(statCode);
+            if (measurement === null){
+                copyPatients.push({
+                    patient : patient.toJSON(), 
+                    measurement : measurement
+                });
+            } else {
+                copyPatients.push({
+                    patient : patient.toJSON(), 
+                    measurement : measurement.toJSON()
+                });
+            }
+        }
+        return copyPatients;
     }
 
     /**
      * Add a monitor to this Practitioner.
      * @param monitor a Monitor object to add to this Practitioner monitors array.
      */
-    public addMonitor(monitor: Monitor): void {
-        this.monitors.push(monitor);
+    public addMonitor(statCode: StatCode): void {
+        switch (statCode) {
+            case(StatCode.TOTAL_CHOLESTEROL):
+                this.monitors.push(new CholesterolMonitor("Cholesterol Monitor"));
+            default:
+                break;
+        }
     }
 
     /**
@@ -54,14 +222,29 @@ class Practitioner {
         }
     }
 
-    /**
-     * Register a patient to a monitor
-     * @param monitor a monitor which the patient will be registered to
-     * @param patient the patient which will be registered to the monitor
-     */
-    public registerMonitoredPatient(monitor: Monitor, patient:Patient): void {
-        monitor.addPatient(patient);
+    public addMonitoredPatient(statCode:StatCode, ID:string) {
+        let monitor:Monitor | null = this.getMonitor(statCode);
+        let patient:Patient | null = this.getPatient(ID);
+
+        if (monitor && patient) {
+            monitor.addPatient(patient);
+        }
     }
 
+    public removeMonitoredPatient(statCode:StatCode, ID:string) {
+        let monitor:Monitor | null = this.getMonitor(statCode);
+        let patient:Patient | null = this.getPatient(ID);
 
+        if (monitor && patient) {
+            monitor.removePatient(patient);
+        }
+    }
+
+    public toJSON() : IPractitioner{
+        return {
+            identifier : this.identifier,
+            name : this.name,
+            email : this.email
+        };
+    }
 }

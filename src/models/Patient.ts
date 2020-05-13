@@ -1,3 +1,12 @@
+interface IPatient{
+    id: string,
+    givenName: string, 
+    familyName: string,
+    birthDate: Date, 
+    gender: string, 
+    address: IAddress
+}
+
 /**
  * Patient of the current logged in Practitioner
  */
@@ -64,7 +73,14 @@ class Patient {
         this.measurements.push(measurement);
     }
     
-    public toJSON(): object {
-        return {givenName: this.givenName, familyName:this.familyName, gender: this.gender, address: this.address.toJSON};
+    public toJSON(): IPatient {
+        return {
+            id: this.id,
+            birthDate: this.birthDate,
+            givenName: this.givenName, 
+            familyName:this.familyName, 
+            gender: this.gender, 
+            address: this.address.toJSON()
+        };
     }
 }
