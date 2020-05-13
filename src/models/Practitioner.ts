@@ -37,12 +37,26 @@ class Practitioner {
         return this.patients;
     }
 
+    public getPatient(ID: string): Patient | null{
+        for (let i:number = 0; i < this.patients.length; i ++) {
+            if (this.patients[i].getId() == ID) {
+                return this.patients[i];
+            }
+        }
+        return null;
+    }
+
     /**
      * Add a monitor to this Practitioner.
      * @param monitor a Monitor object to add to this Practitioner monitors array.
      */
-    public addMonitor(monitor: Monitor): void {
-        this.monitors.push(monitor);
+    public addMonitor(statCode: StatCode): void {
+        switch (statCode) {
+            case(StatCode.TOTAL_CHOLESTEROL):
+                this.monitors.push(new CholesterolMonitor("Cholesterol Monitor"));
+            default:
+                break;
+        }
     }
 
     /**
@@ -71,14 +85,21 @@ class Practitioner {
         }
     }
 
-    /**
-     * Register a patient to a monitor
-     * @param monitor a monitor which the patient will be registered to
-     * @param patient the patient which will be registered to the monitor
-     */
-    public registerMonitoredPatient(monitor: Monitor, patient:Patient): void {
-        monitor.addPatient(patient);
+    public addMonitoredPatient(statCode:StatCode, ID:string) {
+        let monitor:Monitor | null = this.getMonitor(statCode);
+        let patient:Patient | null = this.getPatient(ID);
+
+        if (monitor && patient) {
+            monitor.addPatient(patient);
+        }
     }
 
+    public removeMonitoredPatient(statCode:StatCode, ID:string) {
+        let monitor:Monitor | null = this.getMonitor(statCode);
+        let patient:Patient | null = this.getPatient(ID);
 
+        if (monitor && patient) {
+            monitor.removePatient(patient);
+        }
+    }
 }
