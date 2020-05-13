@@ -8,7 +8,7 @@ import MonitorPage from '../views/MonitorPage';
  * Controller class for managing input from user
  * 
  */
-class Controller {
+export default class Controller {
     private model: Application;
     private view: GUI;
     private observers: Array<ControllerObserver>;
@@ -30,7 +30,7 @@ class Controller {
      * Validate the ID of practitioner, open the patien list page if the Practitioner exists
      * @param ID string ID of practitioner
      */
-    public validateId(ID: string): Promise<boolean> {
+    public validateID(ID: string): Promise<boolean> {
         return this.model.validateID(ID);
     }
 
@@ -161,4 +161,13 @@ class Controller {
         this.model.removeMonitoredPatient(statCode, ID);
     }
 
+    /**
+     * Update a certain monitor's interval update specified by the statcode
+     * @param statCode statcode of monitor
+     * @param interval the new interval measured in millisecond
+     * @returns a boolean | undefined indicated if the interval was updated or not.
+     */
+    public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
+        return this.model.updateMonitorInterval(statCode, interval);
+    }
 }

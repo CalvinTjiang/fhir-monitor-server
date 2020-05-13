@@ -79,4 +79,14 @@ export default class Application{
     public removeMonitoredPatient(statCode:StatCode, ID:string) {
         this.user?.removeMonitoredPatient(statCode, ID);
     }
+
+    /**
+     * Update a certain monitor's interval update specified by the statcode
+     * @param statCode statcode of monitor
+     * @param interval the new interval measured in millisecond
+     * @returns a boolean | undefined indicated if the interval was updated or not.
+     */
+    public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
+        return this.user?.getMonitor(statCode)?.setUpdateInterval(interval)
+    }
 }
