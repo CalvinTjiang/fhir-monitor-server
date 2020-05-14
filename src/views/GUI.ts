@@ -24,10 +24,10 @@ export default class GUI{
     }
 
     /**
-     * Get the patient details and measurement detail
+     * Get the index page
      * @param user an IPractitioner object that contain the currently logged in user data
      * @param monitor an Array of IPatient object that contain the details of patient
-     * @returns array of object that contain the patient and measurement details.
+     * @returns a Promise object that will return the HTML data in string form
      */
     public indexPage(user : IPractitioner, patients: Array<IPatient>): Promise<string>{
         return ejs.renderFile(
@@ -37,6 +37,17 @@ export default class GUI{
             });
     }
 
+    /**
+     * Get the loading page
+     * @param user an IPractitioner object that contain the currently logged in user data
+     * @returns a Promise object that will return the HTML data in string form
+     */
+    public loadingPage(user : IPractitioner): Promise<string>{
+        return ejs.renderFile(
+            __dirname + "/resources/loading.html", {
+                user: user
+            });
+    }
     /**
      * Get the patient details page
      * @param user an IPractitioner object that contain the currently logged in user data
@@ -89,10 +100,10 @@ export default class GUI{
      * @param user an IPractitioner object that contain the currently logged in user data
      * @returns a Promise object that will return the HTML data in string form
      */
-    public monitorSettingPage(statCode : StatCode, user : IPractitioner): Promise<string>{
+    public monitorSettingPage(statCode : StatCode, user : IPractitioner, interval : number): Promise<string>{
         for (let monitorPage of this.monitorPages){
             if (monitorPage.getStatCode() === statCode){
-                return monitorPage.settingPage(user);
+                return monitorPage.settingPage(user, interval);
             }
         }
         return this.notFoundPage(user);

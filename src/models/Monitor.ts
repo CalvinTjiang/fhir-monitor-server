@@ -22,7 +22,6 @@ export default abstract class Monitor extends Subject{
         this.statCode = statCode;
         this.patients = new Set<Patient>();
         this.updateInterval = Monitor.MIN_UPDATE_INTERVAL;
-        setTimeout(this.update, this.updateInterval);
     }
 
     /**
@@ -73,6 +72,14 @@ export default abstract class Monitor extends Subject{
         }
         this.updateInterval = updateInterval;
         return true
+    }
+
+    /**
+     * Get this Measurement's update interval
+     * @returns this Measurement's update interval.
+     */
+    public getUpdateInterval() : number{
+        return this.updateInterval;
     }
 
     /**

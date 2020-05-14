@@ -10,12 +10,12 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Monitor Setting (<%= statCode %>)</title>
+    <title>Tables</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
-    <link href="http://localhost:8080/vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
     <link href="http://localhost:8080/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <link href="http://localhost:8080/vendor/font-awesome-5/css/fontawesome-all.min.css" rel="stylesheet" media="all">
     <link href="http://localhost:8080/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
 
     <!-- Bootstrap CSS-->
@@ -144,43 +144,23 @@
                     </div>
                 </div>
             </header>
-            <!-- HEADER DESKTOP-->
+            <!-- END HEADER DESKTOP-->
 
             <!-- MAIN CONTENT-->
             <div class="main-content">
-                <div class="section__content section__content--p30">
-                    <div class="container-fluid">
+                <div class="section__content section__content--p30" >
+                    <div class="container-fluid" >
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <strong>Setting</strong> Monitor (<%= statCode %>)
-                                    </div>
-                                    <div class="card-body card-block">
-                                        <form action="" method="post" class="form-horizontal">
-                                            <div class="row form-group">
-                                                <div class="col col-md-3">
-                                                    <label for="hf-email" class=" form-control-label">Monitor Update Interval (in Second)</label>
-                                                </div>
-                                                <div class="col-12 col-md-9">
-                                                    <input type="number" id="interval" name="interval" value='<%= interval %>' class="form-control" min="30">
-                                                    <span class="help-block">Update interval can't be lower than 30 seconds</span>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="card-footer">
-                                        <button type="submit" class="btn btn-primary btn-sm" onclick="setUpdateInterval(document.getElementById('interval').value, '<%= statCode %>')">
-                                            <i class="fa fa-dot-circle-o"></i> Update
-                                        </button>
-                                        <button type="reset" class="btn btn-danger btn-sm" onclick="setUpdateInterval(30, '<%= statCode %>')">
-                                            <i class="fa fa-ban"></i> Reset
-                                        </button>
-                                    </div>
-                                </div>
+                            <div class="col-md-12 offset-md-2">
+                                <h1>Please wait, while we get the latest data for you.</h1>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="page-loader-side">
+                            <div class="page-loader__spin" >
+            
+                            </div>
+                        </div>
+                        <div class="row" style="margin: 140px 0px;">
                             <div class="col-md-12">
                                 <div class="copyright">
                                     <p>Copyright © 2018 Colorlib. All rights reserved. Template by <a href="https://colorlib.com">Colorlib</a>.</p>
@@ -193,12 +173,23 @@
         </div>
 
     </div>
-    <script>
-        function setUpdateInterval(interval, statCode){
-            fetch(`http://localhost:8080/api/monitor/${statCode}/interval/${interval}`, {
-                method : "POST"
-            })
 
+    <script>
+        function addMonitorPatients(statCode){
+            let ids = []
+            let patients = document.getElementsByClassName("patient-checkbox")
+            for (let patient of patients){
+                if (patient.checked){
+                    ids.push(patient.value)
+                } 
+            }
+            fetch(`http://localhost:8080/api/monitor/${statCode}/patients`, {
+                method : "POST",    
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ids)
+            })
             location.href = `http://localhost:8080/monitor/${statCode}`
         }
     </script>

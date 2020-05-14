@@ -33,14 +33,22 @@ export default class Practitioner {
      * Get the patient data encountered by the user from FHIR server
      * @returns a promise boolean that indicate if there are any patient
      */
-    public getFHIRPatient() : Promise<boolean>{
-        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`)
+    public getFHIRPatient(link : string) : Promise<boolean>{
+        if (link.length === 0){
+            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`
+        }
+        return fetch(link)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)
                 }
                 return response.json()
+            }).catch((error)=>{
+                console.log(error);
             }).then(data => {
+                if (data.resourceType === "OperationOutcome"){
+                    return false;
+                }
                 if (data.total === 0){
                     return false;
                 }
@@ -49,9 +57,9 @@ export default class Practitioner {
                     if (resource.resourceType === "Patient"){
                         if (resource.deceasedDateTime === undefined){
                             let address : Address = new Address(
-                                resource.address.city,
-                                resource.address.state,
-                                resource.address.country
+                                resource.address[0].city,
+                                resource.address[0].state,
+                                resource.address[0].country
                             );
                             this.patients.push(new Patient(
                                 resource.id,
@@ -65,6 +73,11 @@ export default class Practitioner {
                     }
                 }
 
+                for (let link of data.link){
+                    if (link.relation === "next"){
+                        return this.getFHIRPatient(link.url) || true;
+                    }
+                }
                 return true;
         })
     }
@@ -73,7 +86,11 @@ export default class Practitioner {
      * Get the measurement data for all practioner's patient from FHIR Server
      * @returns a promise boolean that indicate if any update has occurs
      */
-    public getFHIRPatientMeasurement(statcode : StatCode) : Promise<boolean>{
+    public getFHIRPatientMeasurement(statCode : StatCode, link : string) : Promise<boolean>{
+        if (this.patients.length === 0) {
+            return new Promise((result)=>false);
+        }
+        
         let PATIENT = "Patient/".length;
         let patientString : string = "";
         let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
@@ -82,19 +99,27 @@ export default class Practitioner {
 
             // Construct the querystring for patient
             if (patientString.length !== 0){
-                patientString =  patientString + ",";
+                patientString =  patientString + "%2C";
             }
             patientString = patientString + patient.getId();
         }
+        if (link.length === 0){
+            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?code=${statCode}&patient=${patientString}&_count=200`;
+        }
 
         // Get the observation data for the statCode
-        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${statcode}&patient=${patientString}`)
+        return fetch(link)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)
                 }
                 return response.json()
-            }).then(data => {
+            }).catch((error)=>{
+                console.log(error)
+                return {
+                    total : 0
+                }
+            }).then((data)=>{
                 if (data.total === 0){
                     return false
                 }
@@ -106,11 +131,11 @@ export default class Practitioner {
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(statcode);
+                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(statCode);
 
                     // Compile the data as dictionary
                     let cholesterolMeasurement = {
-                        statCode: statcode,
+                        statCode: statCode,
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
                         unit : resource.valueQuantity.unit,
@@ -136,8 +161,14 @@ export default class Practitioner {
                 }else{
                     CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
                 }
+
+                for (let link of data.link){
+                    if (link.relation === "next"){
+                        return this.getFHIRPatientMeasurement(statCode, link.url) || newUpdate;
+                    }
+                }
                 return newUpdate
-            });
+                });
     }
     
     /**

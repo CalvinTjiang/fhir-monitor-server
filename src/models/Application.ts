@@ -29,14 +29,18 @@ export default class Application{
                 let entry = data.entry[0];
                 let resource = entry.resource
                 let identifier : string = resource.identifier[0].system + "|" + resource.identifier[0].value;
-                let name : string = resource.name[0].prefix[0] + resource.name[0].given[0] + resource.name[0].family;
+                let name : string = resource.name[0].prefix[0] + " " + resource.name[0].given[0] + " " + resource.name[0].family;
                 let email : string = resource.telecom[0].value;
                 this.user = new Practitioner(identifier, name, email);
                 this.addMonitor(StatCode.TOTAL_CHOLESTEROL);
-                return this.user.getFHIRPatient()
+                return this.user.getFHIRPatient("")
                     .then((res : boolean)=>{
-                        return this.user?.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL) || res;
-                    })
+                        if (this.user === null){
+                            return false;
+                        }
+                        this.user.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL, "")
+                        return true;
+                    });
             });
     }
 

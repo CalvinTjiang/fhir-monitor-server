@@ -11,6 +11,7 @@ import CholesterolMeasurement from "./CholesterolMeasurement";
 export default class CholesterolMonitor extends Monitor {
     constructor(title : string){
         super(title, StatCode.TOTAL_CHOLESTEROL);
+        this.update()
     }
 
     /**
@@ -18,6 +19,9 @@ export default class CholesterolMonitor extends Monitor {
      * @returns a promise boolean that indicate if any update has occurs
      */
     public getFHIRData() : Promise<boolean>{
+        if (this.patients.size === 0) {
+            return new Promise((result)=>false);
+        }
         let PATIENT = "Patient/".length;
         let patientString : string = "";
         let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
@@ -40,6 +44,8 @@ export default class CholesterolMonitor extends Monitor {
                     throw new Error(response.statusText)
                 }
                 return response.json()
+            }).catch((error)=>{
+                console.log(error)
             }).then(data => {
                 if (data.total === 0){
                     return false

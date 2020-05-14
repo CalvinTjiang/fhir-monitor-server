@@ -1,6 +1,6 @@
 import ControllerObserver from './ControllerObserver';
 import { IPractitioner } from '../models/Practitioner';
-import { IMonitor } from '../models/Monitor';
+import Monitor, { IMonitor } from '../models/Monitor';
 import StatCode from '../models/StatCode';
 import { IPatient } from '../models/Patient';
 import Application from '../models/Application';
@@ -34,7 +34,7 @@ export default class Controller {
      */
     public validateID(ID: string): Promise<boolean> {
         return this.model.validateID(ID).then((validated : boolean)=>{
-            
+            console.log(validated)
             if (validated){
                 this.model.addObserver(StatCode.TOTAL_CHOLESTEROL, this.observers[this.observers.length-1]);
             }
@@ -125,8 +125,12 @@ export default class Controller {
      */
     public monitorSettingPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
+        let monitor: Monitor | undefined | null = this.model.getUser()?.getMonitor(statCode);
         if (user !== undefined ){
-            return this.view.monitorSettingPage(statCode, user);
+            if (monitor !== null && monitor !== undefined){
+                return this.view.monitorSettingPage(statCode, user, monitor.getUpdateInterval() / 1000);
+            }
+            return this.view.noPatientPage(user);
         }
         return this.loginPage();
     }
@@ -139,6 +143,18 @@ export default class Controller {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         if (user !== undefined ){
             return this.view.notFoundPage(user);
+        }
+        return this.loginPage();
+    }
+
+    /**
+     * Get the error 404 : not found page
+     * @returns a Promise object that will return the HTML data in string form
+     */
+    public loadingPage() : Promise<string> {
+        let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
+        if (user !== undefined ){
+            return this.view.loadingPage(user);
         }
         return this.loginPage();
     }

@@ -46,6 +46,16 @@ app.get('/index', (req, res)=>{
         })
 })
 
+app.get('/patient/:patient', (req, res)=>{
+    controller.patientPage(req.params.patient)
+        .then((page)=>{
+            res.send(page);
+        }).catch((error)=>{
+            console.log(error);
+            res.redirect('/error');
+        })
+})
+
 app.get('/monitor/:statCode/selection', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){

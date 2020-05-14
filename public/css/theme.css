@@ -14664,3 +14664,7 @@ tr td.female-color{
 tr td.male-color{
     color:#32a1ff;
 }
+
+div.page-loader-side{
+    position: none;
+}
