@@ -1,4 +1,7 @@
 import Subject from "./Subject";
+import StatCode from "./StatCode";
+import Patient, { IPatient } from "./Patient";
+import Measurement, { IMeasurement } from "./Measurement";
 export interface IMonitor{
     patient : IPatient,
     measurement : IMeasurement | null

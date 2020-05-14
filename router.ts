@@ -6,6 +6,7 @@ import path from "path";
 import Controller from "./src/controllers/Controller";
 import GUI from "./src/views/GUI";
 import Application from "./src/models/Application";
+import StatCode from "./src/models/StatCode";
 
 
 const PORT : number = 8080;
@@ -15,7 +16,7 @@ const gui : GUI = new GUI();
 const controller : Controller = new Controller(model, gui, io)
 
 
-app.use('/', express.static(path.join(__dirname,"build")));
+app.use('/', express.static(path.join(__dirname,"public")));
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -30,6 +31,7 @@ app.get('/login', (req, res)=>{
         .then((page)=>{
             res.send(page);
         }).catch((error)=>{
+            console.log(error);
             res.redirect('/error');
         })
 })
@@ -39,6 +41,7 @@ app.get('/index', (req, res)=>{
         .then((page)=>{
             res.send(page);
         }).catch((error)=>{
+            console.log(error);
             res.redirect('/error');
         })
 })
@@ -50,6 +53,7 @@ app.get('/monitor/:statCode/selection', (req, res)=>{
                 .then((page)=>{
                     res.send(page);
                 }).catch((error)=>{
+                    console.log(error);
                     res.redirect('/error');
                 })
             break;
@@ -64,6 +68,7 @@ app.get('/monitor/:statCode/setting', (req, res)=>{
                 .then((page)=>{
                     res.send(page);
                 }).catch((error)=>{
+                    console.log(error);
                     res.redirect('/error');
                 })
             break;
@@ -78,6 +83,7 @@ app.get('/monitor/:statCode', (req, res)=>{
                 .then((page)=>{
                     res.send(page);
                 }).catch((error)=>{
+                    console.log(error);
                     res.redirect('/error');
                 })
             break;
@@ -100,14 +106,15 @@ app.post('/login', (req, res)=>{
                 res.redirect('/login');
             }
         }).catch((error)=>{
+            console.log(error);
             res.redirect('/error');
         })
 })
 
-app.post('/api/monitor/:statcode/patients', (req, res)=>{
+app.post('/api/monitor/:statCode/patients', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
-            for (let ID in req.body){
+            for (let ID of req.body){
                 controller.addMonitoredPatient((<any>StatCode)[code], ID);
             }
         }
@@ -115,7 +122,7 @@ app.post('/api/monitor/:statcode/patients', (req, res)=>{
     res.json();
 })
 
-app.post('/api/monitor/:statcode/interval/:interval', (req, res)=>{
+app.post('/api/monitor/:statCode/interval/:interval', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
             controller.updateMonitorInterval((<any>StatCode)[code], Number(req.params.interval) * 1000)
@@ -125,7 +132,7 @@ app.post('/api/monitor/:statcode/interval/:interval', (req, res)=>{
 })
 
 // DELETE Method
-app.delete('/api/monitor/:statcode/patient/:patient', (req, res)=>{
+app.delete('/api/monitor/:statCode/patient/:patient', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
             controller.removeMonitoredPatient((<any>StatCode)[code], req.params.patient);

@@ -1,12 +1,13 @@
 import ejs from "ejs";
 import { IMonitor } from "../models/Monitor";
 import { IPractitioner } from "../models/Practitioner";
+import StatCode from "../models/StatCode";
 
 export default class MonitorPage{
     private resourcePath : string;
     private statCode: StatCode;
     constructor(resourcePath : string, statCode : StatCode){
-        this.resourcePath = resourcePath;
+        this.resourcePath = __dirname + resourcePath;
         this.statCode = statCode;
     }
 

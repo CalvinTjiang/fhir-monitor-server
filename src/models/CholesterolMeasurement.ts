@@ -1,4 +1,7 @@
-interface ICholesterolMeasurement extends IMeasurement{
+import StatCode from "./StatCode";
+import Measurement, { IMeasurement } from "./Measurement";
+
+export interface ICholesterolMeasurement extends IMeasurement{
     totalCholesterol : number,
     unit : string,
     isAboveAverage : boolean
@@ -6,7 +9,7 @@ interface ICholesterolMeasurement extends IMeasurement{
 /**
  * A CholesterolMeasurement class with total cholesterol
  */
-class CholesterolMeasurement extends Measurement {
+export default class CholesterolMeasurement extends Measurement {
     private static averageTotalCholesterol : number;
     private totalCholesterol: number;
     private unit : string;

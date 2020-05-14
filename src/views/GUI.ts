@@ -2,6 +2,8 @@ import ejs from "ejs";
 import MonitorPage from "./MonitorPage";
 import { IPractitioner } from "../models/Practitioner";
 import { IMonitor } from "../models/Monitor";
+import StatCode from "../models/StatCode";
+import { IPatient } from "../models/Patient";
 
 export default class GUI{
     private monitorPages : Array<MonitorPage>;

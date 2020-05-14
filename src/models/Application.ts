@@ -1,6 +1,7 @@
 import Practitioner from "./Practitioner";
 import Observer from "../observers/Observer";
 import fetch from "node-fetch";
+import StatCode from "./StatCode";
 
 export default class Application{
     private user : Practitioner | null;
@@ -26,10 +27,12 @@ export default class Application{
                 }
                 // Implement checking
                 let entry = data.entry[0];
-                let identifier : string = entry.identifier[0].system + "|" + entry.identifier[0].value;
-                let name : string = entry.name[0].prefix[0] + entry.name[0].given[0] + entry.name[0].family;
-                let email : string = entry.telecom[0].value;
+                let resource = entry.resource
+                let identifier : string = resource.identifier[0].system + "|" + resource.identifier[0].value;
+                let name : string = resource.name[0].prefix[0] + resource.name[0].given[0] + resource.name[0].family;
+                let email : string = resource.telecom[0].value;
                 this.user = new Practitioner(identifier, name, email);
+                this.addMonitor(StatCode.TOTAL_CHOLESTEROL);
                 return this.user.getFHIRPatient()
                     .then((res : boolean)=>{
                         return this.user?.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL) || res;

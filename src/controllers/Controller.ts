@@ -1,8 +1,11 @@
-import Application from '../models/Application';
-import GUI from '../views/GUI';
 import ControllerObserver from './ControllerObserver';
 import { IPractitioner } from '../models/Practitioner';
 import { IMonitor } from '../models/Monitor';
+import StatCode from '../models/StatCode';
+import { IPatient } from '../models/Patient';
+import Application from '../models/Application';
+
+import GUI from '../views/GUI';
 import MonitorPage from '../views/MonitorPage';
 /**
  * Controller class for managing input from user
@@ -20,10 +23,9 @@ export default class Controller {
 
         // create a new observer
         let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socket);
-        this.model.addObserver(StatCode.TOTAL_CHOLESTEROL, controllerObserver);
-        
         this.observers.push(controllerObserver);
-        this.view.addMonitorPage(new MonitorPage(__dirname + "/resources/cholesterol-monitor.html", StatCode.TOTAL_CHOLESTEROL))
+        
+        this.view.addMonitorPage(new MonitorPage("/resources/cholesterol-monitor.html", StatCode.TOTAL_CHOLESTEROL))
     }
 
     /**
@@ -31,7 +33,13 @@ export default class Controller {
      * @param ID string ID of practitioner
      */
     public validateID(ID: string): Promise<boolean> {
-        return this.model.validateID(ID);
+        return this.model.validateID(ID).then((validated : boolean)=>{
+            
+            if (validated){
+                this.model.addObserver(StatCode.TOTAL_CHOLESTEROL, this.observers[this.observers.length-1]);
+            }
+            return validated
+        });
     }
 
     /**
@@ -50,7 +58,7 @@ export default class Controller {
     public indexPage() : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let patients: Array<IPatient> | undefined = this.model.getUser()?.getPatients().map(patient => patient.toJSON());
-        if (user !== undefined && patients !== undefined){
+        if (user !== undefined){
             if (patients !== undefined){
                 return this.view.indexPage(user, patients);
             }
@@ -84,11 +92,11 @@ export default class Controller {
     public monitorListPage(statCode: StatCode) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
-        if (user !== undefined && monitor !== undefined){
-            if (monitor !== undefined){
-                return this.view.monitorListPage(statCode, user, monitor);
+        if (user !== undefined){
+            if (monitor === undefined){
+                return this.view.monitorListPage(statCode, user, []);
             }
-            return this.view.noPatientPage(user);
+            return this.view.monitorListPage(statCode, user, monitor);
         }
         return this.loginPage();
     }
@@ -101,7 +109,7 @@ export default class Controller {
     public monitorSelectionPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getPatientsWithMeasurement(statCode);
-        if (user !== undefined && monitor !== undefined){
+        if (user !== undefined){
             if (monitor !== undefined){
                 return this.view.monitorSelectionPage(statCode, user, monitor);
             }

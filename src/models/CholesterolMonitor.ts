@@ -1,5 +1,9 @@
 import Monitor from "./Monitor";
 import fetch from "node-fetch";
+import StatCode from "./StatCode";
+import Patient from "./Patient";
+import Measurement from "./Measurement";
+import CholesterolMeasurement from "./CholesterolMeasurement";
 
 /**
  * Abstract class measurement for measurements of patient's vital

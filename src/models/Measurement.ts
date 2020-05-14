@@ -1,11 +1,13 @@
-interface IMeasurement{
+import StatCode from "./StatCode";
+
+export interface IMeasurement{
     statCode : string,
     effectiveDateTime: Date,
 }
 /**
  * Abstract class measurement for measurements of patient's vital
  */
-abstract class Measurement {
+export default abstract class Measurement {
     protected statCode: StatCode;
     protected effectiveDateTime : Date;
 

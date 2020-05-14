@@ -1,4 +1,4 @@
-interface IAddress {
+export interface IAddress {
     city: string, 
     state: string, 
     country: string
@@ -6,7 +6,7 @@ interface IAddress {
 /**
  * Address of a patient
  */
-class Address {
+export default class Address {
     private city: string;
     private state: string;
     private country: string;

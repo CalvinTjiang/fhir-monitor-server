@@ -1,6 +1,11 @@
+import fetch from "node-fetch";
 import Monitor, { IMonitor } from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
-import fetch from "node-fetch";
+import StatCode from "./StatCode";
+import Patient from "./Patient";
+import Measurement from "./Measurement";
+import CholesterolMeasurement from "./CholesterolMeasurement";
+import Address from "./Address";
 
 export interface IPractitioner{
     identifier : string,
@@ -59,6 +64,7 @@ export default class Practitioner {
                         }
                     }
                 }
+
                 return true;
         })
     }
@@ -191,6 +197,7 @@ export default class Practitioner {
         switch (statCode) {
             case(StatCode.TOTAL_CHOLESTEROL):
                 this.monitors.push(new CholesterolMonitor("Cholesterol Monitor"));
+                break;
             default:
                 break;
         }
@@ -203,7 +210,7 @@ export default class Practitioner {
      */
     public getMonitor(statCode: StatCode): Monitor | null{
         for (let index:number = 0; index < this.monitors.length; index++) {
-            if (this.monitors[index].getStatCode() == statCode) {
+            if (this.monitors[index].getStatCode() === statCode) {
                 return this.monitors[index];
             }
         }
@@ -225,7 +232,6 @@ export default class Practitioner {
     public addMonitoredPatient(statCode:StatCode, ID:string) {
         let monitor:Monitor | null = this.getMonitor(statCode);
         let patient:Patient | null = this.getPatient(ID);
-
         if (monitor && patient) {
             monitor.addPatient(patient);
         }

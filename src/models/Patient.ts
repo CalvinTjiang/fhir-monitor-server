@@ -1,4 +1,8 @@
-interface IPatient{
+import StatCode from "./StatCode";
+import Measurement from "./Measurement";
+import Address, { IAddress } from "./Address";
+
+export interface IPatient{
     id: string,
     givenName: string, 
     familyName: string,
@@ -10,7 +14,7 @@ interface IPatient{
 /**
  * Patient of the current logged in Practitioner
  */
-class Patient {
+export default class Patient {
     private id: string;
     private givenName: string;
     private familyName: string;
