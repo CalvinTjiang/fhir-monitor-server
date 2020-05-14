@@ -17,7 +17,8 @@ export interface IPractitioner{
  */
 export default class Practitioner {
     private identifier: string;
-    private patients: Array<Patient>;
+    // private patients: Array<Patient>;
+    private patients: {[id: string]: Patient};
     private monitors: Array<Monitor>;
     private name : string;
     private email : string;
@@ -25,28 +26,33 @@ export default class Practitioner {
         this.identifier = identifier;
         this.name = name;
         this.email = email
-        this.patients = [];
+        // this.patients = [];
+        this.patients = {};
         this.monitors = [];
     }
 
     /**
      * Get the patient data encountered by the user from FHIR server
-     * @returns a promise boolean that indicate if there are any patient
+     * @returns a promise boolean that indicate if this Practitioner has any patient
      */
     public getFHIRPatient(link : string) : Promise<boolean>{
+        // first time calling the function, the link is predetermined
         if (link.length === 0){
-            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`
+            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=10`;
         }
+
+        console.log(`Getting Patients with link: ${link}`);
+
+        //fetch link data
         return fetch(link)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.statusText)
                 }
                 return response.json()
-            }).catch((error)=>{
-                console.log(error);
             }).then(data => {
                 if (data.resourceType === "OperationOutcome"){
+                    console.log('ResourceType is OperationOutcome');
                     return false;
                 }
                 if (data.total === 0){
@@ -55,13 +61,14 @@ export default class Practitioner {
                 for (let entry of data.entry){
                     let resource = entry.resource;
                     if (resource.resourceType === "Patient"){
+                        console.log(`Patient found ${resource.id}`);
                         if (resource.deceasedDateTime === undefined){
                             let address : Address = new Address(
                                 resource.address[0].city,
                                 resource.address[0].state,
                                 resource.address[0].country
                             );
-                            this.patients.push(new Patient(
+                            this.patients[resource.id] = (new Patient(
                                 resource.id,
                                 resource.name[0].given[0],
                                 resource.name[0].family,
@@ -73,13 +80,17 @@ export default class Practitioner {
                     }
                 }
 
+                // get the next page of result by looking through links
                 for (let link of data.link){
                     if (link.relation === "next"){
                         return this.getFHIRPatient(link.url) || true;
                     }
                 }
                 return true;
-        })
+            }).catch((error)=>{
+                console.log(error);
+                return false;
+            })
     }
 
     /**
@@ -87,25 +98,22 @@ export default class Practitioner {
      * @returns a promise boolean that indicate if any update has occurs
      */
     public getFHIRPatientMeasurement(statCode : StatCode, link : string) : Promise<boolean>{
-        if (this.patients.length === 0) {
-            return new Promise((result)=>false);
-        }
-        
         let PATIENT = "Patient/".length;
         let patientString : string = "";
-        let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
-        for (let patient of this.patients){
-            patientsDictionary[patient.getId()] = patient;
 
-            // Construct the querystring for patient
-            if (patientString.length !== 0){
-                patientString =  patientString + "%2C";
+        // construct query string for link to search for Observations
+        Object.keys(this.patients).forEach(id => {
+            let patient: Patient = this.patients[id];
+            if (patientString.length !== 0) {
+                patientString += "%2C";
             }
-            patientString = patientString + patient.getId();
-        }
+            patientString += id;
+        });
         if (link.length === 0){
             link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?code=${statCode}&patient=${patientString}&_count=200`;
         }
+
+        console.log(`Fetching Patient Measurements with link :${link}`);
 
         // Get the observation data for the statCode
         return fetch(link)
@@ -114,12 +122,8 @@ export default class Practitioner {
                     throw new Error(response.statusText)
                 }
                 return response.json()
-            }).catch((error)=>{
-                console.log(error)
-                return {
-                    total : 0
-                }
             }).then((data)=>{
+                // return false if all patients does not have Observation data with the StatCode
                 if (data.total === 0){
                     return false
                 }
@@ -128,10 +132,11 @@ export default class Practitioner {
                 let totalMeasurement : number = 0;
                 // for each entry on the response
                 for (let entry of data.entry){
+                    console.log(`Measurement with statCode ${statCode} is found for patient ${entry.resource.subject.reference.slice(PATIENT)}`);
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(statCode);
+                    let measurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
 
                     // Compile the data as dictionary
                     let cholesterolMeasurement = {
@@ -150,12 +155,13 @@ export default class Practitioner {
                             totalMeasurement += 1;
                         }
                     } else {
-                        patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
+                        this.patients[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
                         newUpdate = true;
                         totalCholesterol += cholesterolMeasurement.totalCholesterol;
                         totalMeasurement += 1;
                     }
                 }
+                
                 if (totalMeasurement === 0){
                     CholesterolMeasurement.setAverage(0);
                 }else{
@@ -168,7 +174,10 @@ export default class Practitioner {
                     }
                 }
                 return newUpdate
-                });
+            }).catch((error)=>{
+                console.log(error);
+                return false;
+            });
     }
     
     /**
@@ -184,17 +193,18 @@ export default class Practitioner {
      * @returns returns all practitioner's patients.
      */
     public getPatients(): Array<Patient>{
-        return this.patients;
+        let patientsArray: Array<Patient> = [];
+        Object.keys(this.patients).forEach(id => {
+            let patient:Patient = this.patients[id];
+            patientsArray.push(patient);
+        });
+        return patientsArray;
     }
 
     public getPatient(ID: string): Patient | null{
-        for (let i:number = 0; i < this.patients.length; i ++) {
-            if (this.patients[i].getId() == ID) {
-                return this.patients[i];
-            }
-        }
-        return null;
+        return this.patients[ID];
     }
+
 
     /**
      * Get the patient details and measurement detail
@@ -203,7 +213,8 @@ export default class Practitioner {
      */
     public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitor>{
         let copyPatients : Array<IMonitor> = [];
-        for (let patient of this.patients){
+        Object.keys(this.patients).forEach(id => {
+            let patient:Patient = this.patients[id];
             let measurement : Measurement | null = patient.getMeasurement(statCode);
             if (measurement === null){
                 copyPatients.push({
@@ -216,7 +227,7 @@ export default class Practitioner {
                     measurement : measurement.toJSON()
                 });
             }
-        }
+        });
         return copyPatients;
     }
 
