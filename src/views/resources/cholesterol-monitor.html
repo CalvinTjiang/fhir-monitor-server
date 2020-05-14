@@ -158,10 +158,10 @@
                                         <h3 class="title-5 m-b-35" style="margin-top: 10px;">Cholesterol Monitored Patient (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
                                             <i class="zmdi zmdi-plus"></i>Add Patient</button>
                                             
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToSetting('<%= statCode %>')">
                                             <i class="zmdi zmdi-settings"></i>Setting</button>
                                     </div>
                                 </div>
@@ -224,6 +224,15 @@
             fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
                 method : "DELETE"
             })
+            location.reload(true);
+        }
+        
+        function redirectToSelection(statCode){
+            location.href = `http://localhost:8080/monitor/${statCode}/selection`
+        }
+
+        function redirectToSetting(statCode){
+            location.href = `http://localhost:8080/monitor/${statCode}/setting`
         }
     </script>
     <!-- Jquery JS-->

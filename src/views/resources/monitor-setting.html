@@ -198,6 +198,8 @@
             fetch(`http://localhost:8080/api/monitor/${statCode}/interval/${interval}`, {
                 method : "POST"
             })
+
+            location.href = `http://localhost:8080/monitor/${statCode}`
         }
     </script>
     <!-- Jquery JS-->
