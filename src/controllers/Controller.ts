@@ -1,3 +1,5 @@
+import io from 'socket.io';
+
 import ControllerObserver from './ControllerObserver';
 import { IPractitioner } from '../models/Practitioner';
 import Monitor, { IMonitor } from '../models/Monitor';
@@ -16,13 +18,13 @@ export default class Controller {
     private view: GUI;
     private observers: Array<ControllerObserver>;
 
-    constructor(model: Application, view: GUI, socket:any) {
+    constructor(model: Application, view: GUI, socketio: io.Server) {
         this.model = model;
         this.view = view;
         this.observers = new Array<ControllerObserver>();
 
         // create a new observer
-        let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socket);
+        let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socketio);
         this.observers.push(controllerObserver);
         
         this.view.addMonitorPage(new MonitorPage("/resources/cholesterol-monitor.html", StatCode.TOTAL_CHOLESTEROL))
@@ -34,7 +36,6 @@ export default class Controller {
      */
     public validateID(ID: string): Promise<boolean> {
         return this.model.validateID(ID).then((validated : boolean)=>{
-            console.log(validated)
             if (validated){
                 this.model.addObserver(StatCode.TOTAL_CHOLESTEROL, this.observers[this.observers.length-1]);
             }

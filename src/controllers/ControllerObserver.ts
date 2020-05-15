@@ -1,19 +1,23 @@
+import io from 'socket.io';
+
 import Observer from '../observers/Observer'
-import * as socketio from 'socket.io';
 /**
  * A controller observer class which implements observer
  */
 export default class ControllerObserver implements Observer {
     private code: string;
-    private socket: any;
+    private socketio: io.Server;
 
-    constructor(code: string, socket:any) {
+    constructor(code: string, socketio: io.Server) {
         this.code = code;
-        this.socket = socket;
+        this.socketio = socketio;
     }
 
+    /**
+     * Emit a message to a monitor which will be refreshed
+     */
     public update(): void {
-        this.socket.emit(this.code);
+        this.socketio.emit(this.code);
     }
     
 }

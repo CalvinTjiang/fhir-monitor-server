@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Cholesterol Monitor (<%= statCode %></title>
+    <title>Cholesterol Monitor (<%= statCode %>)</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -218,7 +218,7 @@
         </div>
 
     </div>
-
+    <script src='/socket.io/socket.io.js'></script>
     <script>
         function removeMonitoredPatient(id, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
@@ -234,6 +234,13 @@
         function redirectToSetting(statCode){
             location.href = `http://localhost:8080/monitor/${statCode}/setting`
         }
+
+        let socketio = io("http://localhost:8080");
+        let statCode = "<%= statCode %>";
+        socketio.on(statCode, (msg) => {
+            window.location.reload();
+        })
+
     </script>
     <!-- Jquery JS-->
     <script src="http://localhost:8080/vendor/jquery-3.2.1.min.js"></script>

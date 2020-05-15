@@ -1,4 +1,5 @@
 import express = require("express");
+import http from 'http';
 import io from "socket.io";
 import bodyParser from "body-parser";
 import path from "path";
@@ -11,9 +12,12 @@ import StatCode from "./src/models/StatCode";
 
 const PORT : number = 8080;
 const app : express.Application = express();
+const server : http.Server = new http.Server(app);
+const socketio : io.Server = io(server);
+
 const model: Application = new Application();
 const gui : GUI = new GUI();
-const controller : Controller = new Controller(model, gui, io)
+const controller : Controller = new Controller(model, gui, socketio);
 
 
 app.use('/', express.static(path.join(__dirname,"public")));
@@ -22,9 +26,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 // GET Method
+app.get('/', (req, res) => {
+    res.redirect('/login');
+});
+
 app.get('/error', (req, res)=>{
     res.send("An Error has been occured!");
-})
+});
 
 app.get('/login', (req, res)=>{
     controller.loginPage()
@@ -98,6 +106,7 @@ app.get('/monitor/:statCode', (req, res)=>{
                 })
             break;
         }
+        
     }
 })
 
@@ -151,6 +160,6 @@ app.delete('/api/monitor/:statCode/patient/:patient', (req, res)=>{
     res.json();
 })
 
-app.listen(PORT, ()=>{
-    console.log(`Web Application is running on http://localhost:${PORT}!`)
+server.listen(PORT, ()=>{
+    console.log(`Web Application is running on http://localhost:${PORT}`)
 })
