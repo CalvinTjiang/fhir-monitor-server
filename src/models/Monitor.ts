@@ -14,14 +14,19 @@ export default abstract class Monitor extends Subject{
     private title: string;
     private statCode: StatCode;
     private updateInterval : number;
-    protected patients : Set<Patient>;
+    // protected patients : Set<Patient>;
+    protected patients : {[id:string]: Patient};
+    // initialise and empty timeoutFunction, and a tiemout id
+    private intervalID : NodeJS.Timeout = setInterval(() => {}, Monitor.MIN_UPDATE_INTERVAL);
 
     constructor(title : string, statCode : StatCode){
         super();
         this.title = title;
         this.statCode = statCode;
-        this.patients = new Set<Patient>();
+        // this.patients = new Set<Patient>();
+        this.patients = {};
         this.updateInterval = Monitor.MIN_UPDATE_INTERVAL;
+        this.startUpdate();
     }
 
     /**
@@ -30,8 +35,8 @@ export default abstract class Monitor extends Subject{
      */
     public getPatientsWithMeasurement() : Array<IMonitor>{
         let copyPatients : Array<IMonitor> = [];
-        for (let value of this.patients.entries()){
-            let currentPatient : Patient= value[0];
+        for (let id of Object.keys(this.patients)){
+            let currentPatient : Patient = this.patients[id];
             let measurement : Measurement | null = currentPatient.getMeasurement(this.statCode);
             if (measurement === null){
                 copyPatients.push({
@@ -48,17 +53,26 @@ export default abstract class Monitor extends Subject{
         return copyPatients;
     }
 
+    public startUpdate() {
+        let context = this;
+        this.intervalID = setInterval(function() {
+            context.update();
+        }, this.updateInterval);
+    }
+
     /**
      * run a continous check on the FHIR server and inform the observer if any update occurs
-     * @returns a promise boolean that indicate if any update has occurs
      */
-    public update() : void{
+    public update() : void {
+        // console.log(`Monitor ${this.statCode} update called`);
+
         this.getFHIRData().then((res : boolean) => {
-            if (res){
+            if (res) {
                 this.notify();
             }
-            setTimeout(this.update, this.updateInterval);
-        })
+        }).catch(err => {
+            console.log(err);
+        });
     }
 
     /**
@@ -70,7 +84,13 @@ export default abstract class Monitor extends Subject{
         if (updateInterval < Monitor.MIN_UPDATE_INTERVAL){
             return false;
         }
+        // console.log("setUpdateInterval is called");
+        // update the updateInterval
         this.updateInterval = updateInterval;
+        // reset the setInterval with the new updateInterval
+        clearInterval(this.intervalID);
+        this.startUpdate();
+
         return true
     }
 
@@ -95,7 +115,7 @@ export default abstract class Monitor extends Subject{
      * @param patient a Patient object to add to this monitor's patients.
      */
     public addPatient(patient: Patient) : void{
-        this.patients.add(patient);
+        this.patients[patient.getId()] = patient;
     }
 
     /**
@@ -103,7 +123,7 @@ export default abstract class Monitor extends Subject{
      * @param patient a patient to be removed from this monitor's patients
      */
     public removePatient(patient : Patient) : void{
-        this.patients.delete(patient);
+        delete this.patients[patient.getId()];
     }
     
     /**

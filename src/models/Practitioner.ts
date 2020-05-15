@@ -38,7 +38,7 @@ export default class Practitioner {
     public getFHIRPatient(link : string) : Promise<boolean>{
         // first time calling the function, the link is predetermined
         if (link.length === 0){
-            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=10`;
+            link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`;
         }
 
         console.log(`Getting Patients with link: ${link}`);
@@ -127,19 +127,23 @@ export default class Practitioner {
                 if (data.total === 0){
                     return false
                 }
-                let newUpdate : boolean = false;
+
+                // flag to indicate if any of the new observations are new
+                let updated : boolean = false; 
+                // totalCholesterol and totalMeasurement to count the average CholesterolMeasurement
                 let totalCholesterol : number = 0;
                 let totalMeasurement : number = 0;
-                // for each entry on the response
-                for (let entry of data.entry){
+
+                // for each entry on the Observations response
+                for (let entry of data.entry) {
                     console.log(`Measurement with statCode ${statCode} is found for patient ${entry.resource.subject.reference.slice(PATIENT)}`);
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let measurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
+                    let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
 
-                    // Compile the data as dictionary
-                    let cholesterolMeasurement = {
+                    // Compile the measurements as an object
+                    let newMeasurement = {
                         statCode: statCode,
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
@@ -147,17 +151,17 @@ export default class Practitioner {
                         isAboveAverage : false
                     }
 
-                    // Update the measurement
-                    if (measurement !== null){
-                        if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
-                            newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
-                            totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                    // Update the measurement if the patient has previous measurement, if not add ne measurement
+                    if (oldMeasurement !== null){
+                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                            updated = oldMeasurement.update(newMeasurement) || updated;
+                            totalCholesterol += newMeasurement.totalCholesterol;
                             totalMeasurement += 1;
                         }
                     } else {
-                        this.patients[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
-                        newUpdate = true;
-                        totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                        this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
+                        updated = true;
+                        totalCholesterol += newMeasurement.totalCholesterol;
                         totalMeasurement += 1;
                     }
                 }
@@ -170,10 +174,11 @@ export default class Practitioner {
 
                 for (let link of data.link){
                     if (link.relation === "next"){
-                        return this.getFHIRPatientMeasurement(statCode, link.url) || newUpdate;
+                        return this.getFHIRPatientMeasurement(statCode, link.url) || updated;
                     }
                 }
-                return newUpdate
+
+                return updated;
             }).catch((error)=>{
                 console.log(error);
                 return false;

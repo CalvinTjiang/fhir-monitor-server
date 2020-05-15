@@ -11,7 +11,7 @@ import CholesterolMeasurement from "./CholesterolMeasurement";
 export default class CholesterolMonitor extends Monitor {
     constructor(title : string){
         super(title, StatCode.TOTAL_CHOLESTEROL);
-        this.update()
+        // console.log("New monitor created");
     }
 
     /**
@@ -19,16 +19,18 @@ export default class CholesterolMonitor extends Monitor {
      * @returns a promise boolean that indicate if any update has occurs
      */
     public getFHIRData() : Promise<boolean>{
-        if (this.patients.size === 0) {
+        // console.log("Monitor update getFHRIData is called");
+
+        // if monitor does not have any patient, return immediately
+        if (Object.keys(this.patients).length === 0) {
             return new Promise((result)=>false);
         }
+
         let PATIENT = "Patient/".length;
         let patientString : string = "";
-        let patientsDictionary : {[id : string]: Patient} = {}; // this is a dictionary notation for typscript
-        for (let value of this.patients.entries()){
-            let patient : Patient= value[0];
 
-            patientsDictionary[patient.getId()] = patient;
+        for (let id of Object.keys(this.patients)){
+            let patient : Patient = this.patients[id];
 
             // Construct the querystring for patient
             if (patientString.length !== 0){
@@ -37,31 +39,37 @@ export default class CholesterolMonitor extends Monitor {
             patientString = patientString + patient.getId();
         }
 
+        let link : string = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${this.getStatCode()}&patient=${patientString}`;
+
+        // console.log(link);
+
         // Get the observation data for the statCode
-        return fetch(`https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?_count=1000&code=${this.getStatCode()}&patient=${patientString}`)
+        return fetch(link)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(response.statusText)
+                    throw new Error(response.statusText);
                 }
                 return response.json()
-            }).catch((error)=>{
-                console.log(error)
-            }).then(data => {
+            }).then((data) : boolean => {
+                // if no observation is found return false
                 if (data.total === 0){
-                    return false
+                    return false;
                 }
-                let newUpdate : boolean = false;
+
+                let updated : boolean = false;
+                //total cholesterol and total measurement to countAverage
                 let totalCholesterol : number = 0;
                 let totalMeasurement : number = 0;
+
                 // for each entry on the response
                 for (let entry of data.entry){
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let measurement : Measurement | null = patientsDictionary[patientId].getMeasurement(this.getStatCode());
+                    let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(this.getStatCode());
 
                     // Compile the data as dictionary
-                    let cholesterolMeasurement = {
+                    let newMeasurement = {
                         statCode: this.getStatCode(),
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
@@ -70,25 +78,29 @@ export default class CholesterolMonitor extends Monitor {
                     }
 
                     // Update the measurement
-                    if (measurement !== null){
-                        if (measurement.getEffectiveDateTime() < cholesterolMeasurement.effectiveDateTime){
-                            newUpdate = measurement.update(cholesterolMeasurement) || newUpdate;
-                            totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                    if (oldMeasurement !== null){
+                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                            updated = oldMeasurement.update(newMeasurement) || updated;
+                            totalCholesterol += newMeasurement.totalCholesterol;
                             totalMeasurement += 1;
                         }
                     } else {
-                        patientsDictionary[patientId].addMeasurement(new CholesterolMeasurement(cholesterolMeasurement))
-                        newUpdate = true;
-                        totalCholesterol += cholesterolMeasurement.totalCholesterol;
+                        this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
+                        updated = true;
+                        totalCholesterol += newMeasurement.totalCholesterol;
                         totalMeasurement += 1;
-                    }
+                    }    
                 }
-                if (totalMeasurement === 0){
+                // console.log(`Refreshed monitor result ${updated}`);
+                // console.log(`    found data: ${data.total}`)
+
+                if (totalMeasurement === 0) {
                     CholesterolMeasurement.setAverage(0);
-                }else{
+                } else {
                     CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
                 }
-                return newUpdate
+
+                return updated
             });
     }
 }
