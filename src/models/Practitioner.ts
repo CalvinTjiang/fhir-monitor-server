@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import Monitor, { IMonitor } from "./Monitor";
+import Monitor, { IMonitorPair } from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
@@ -41,7 +41,7 @@ export default class Practitioner {
             link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Encounter?participant.identifier=${this.identifier}&_include=Encounter:patient&_count=200`;
         }
 
-        console.log(`Getting Patients with link: ${link}`);
+        console.log(`Getting Patients from link: ${link}`);
 
         //fetch link data
         return fetch(link)
@@ -58,10 +58,11 @@ export default class Practitioner {
                 if (data.total === 0){
                     return false;
                 }
+                let totalPatient:number = 0;
                 for (let entry of data.entry){
                     let resource = entry.resource;
                     if (resource.resourceType === "Patient"){
-                        console.log(`Patient found ${resource.id}`);
+                        totalPatient++;
                         if (resource.deceasedDateTime === undefined){
                             let address : Address = new Address(
                                 resource.address[0].city,
@@ -79,7 +80,7 @@ export default class Practitioner {
                         }
                     }
                 }
-
+                console.log(`${totalPatient} New living patient(s) found!\n`);
                 // get the next page of result by looking through links
                 for (let link of data.link){
                     if (link.relation === "next"){
@@ -113,7 +114,7 @@ export default class Practitioner {
             link = `https://fhir.monash.edu/hapi-fhir-jpaserver/fhir/Observation?code=${statCode}&patient=${patientString}&_count=200`;
         }
 
-        console.log(`Fetching Patient Measurements with link :${link}`);
+        console.log(`Fetching Patient Measurements from link : ${link}\n`);
 
         // Get the observation data for the statCode
         return fetch(link)
@@ -130,13 +131,12 @@ export default class Practitioner {
 
                 // flag to indicate if any of the new observations are new
                 let updated : boolean = false; 
-                // totalCholesterol and totalMeasurement to count the average CholesterolMeasurement
-                let totalCholesterol : number = 0;
-                let totalMeasurement : number = 0;
 
+                let totalStored:number = 0;
+                let totalUpdated:number = 0;
                 // for each entry on the Observations response
                 for (let entry of data.entry) {
-                    console.log(`Measurement with statCode ${statCode} is found for patient ${entry.resource.subject.reference.slice(PATIENT)}`);
+                    // console.log(`Measurement with statCode ${statCode} is found for patient ${entry.resource.subject.reference.slice(PATIENT)}`);
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
@@ -147,38 +147,32 @@ export default class Practitioner {
                         statCode: statCode,
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
-                        unit : resource.valueQuantity.unit,
-                        isAboveAverage : false
+                        unit : resource.valueQuantity.unit
                     }
 
                     // Update the measurement if the patient has previous measurement, if not add ne measurement
                     if (oldMeasurement !== null){
                         if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
                             updated = oldMeasurement.update(newMeasurement) || updated;
-                            totalCholesterol += newMeasurement.totalCholesterol;
-                            totalMeasurement += 1;
+                            totalUpdated++;
                         }
                     } else {
                         this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
                         updated = true;
-                        totalCholesterol += newMeasurement.totalCholesterol;
-                        totalMeasurement += 1;
+                        totalStored++;
                     }
                 }
-                
-                if (totalMeasurement === 0){
-                    CholesterolMeasurement.setAverage(0);
-                }else{
-                    CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
-                }
+
+                console.log(`${totalStored} new measurement(s) are stored!`);
+                console.log(`${totalUpdated} measurement(s) are updated!\n`);
 
                 for (let link of data.link){
                     if (link.relation === "next"){
                         return this.getFHIRPatientMeasurement(statCode, link.url) || updated;
                     }
                 }
-
                 return updated;
+
             }).catch((error)=>{
                 console.log(error);
                 return false;
@@ -216,8 +210,8 @@ export default class Practitioner {
      * @param statCode a statCode enumeration
      * @returns array of object that contain the patient and measurement details.
      */
-    public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitor>{
-        let copyPatients : Array<IMonitor> = [];
+    public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitorPair>{
+        let copyPatients : Array<IMonitorPair> = [];
         Object.keys(this.patients).forEach(id => {
             let patient:Patient = this.patients[id];
             let measurement : Measurement | null = patient.getMeasurement(statCode);
@@ -243,7 +237,7 @@ export default class Practitioner {
     public addMonitor(statCode: StatCode): void {
         switch (statCode) {
             case(StatCode.TOTAL_CHOLESTEROL):
-                this.monitors.push(new CholesterolMonitor("Cholesterol Monitor"));
+                this.monitors.push(new CholesterolMonitor());
                 break;
             default:
                 break;

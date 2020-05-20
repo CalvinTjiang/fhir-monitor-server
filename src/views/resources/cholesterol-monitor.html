@@ -181,14 +181,14 @@
                                                 <tr>
                                                     <td><%= db[i].measurement.effectiveDateTime.toUTCString() %></td>
                                                     <td><%= db[i].patient.givenName %> <%= db[i].patient.familyName %></td>
-                                                    <% if (db[i].measurement.isAboveAverage) { %>
+                                                    <% if (db[i].measurement.totalCholesterol > info.averageTotalCholesterol) { %>
                                                         <td class="denied">Above Average</td>
                                                         <td class="denied"><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
                                                     <% } %>
 
-                                                    <% if (!db[i].measurement.isAboveAverage) { %>
+                                                    <% if (db[i].measurement.totalCholesterol <= info.averageTotalCholesterol) { %>
                                                         <td class="process">Good</td>
-                                                        <td><%= db[i].measurement.totalCholesterol + db[i].measurement.unit %></td>
+                                                        <td><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
                                                     <% } %>
                                                     <td>
                                                         <div class="table-data-feature">
@@ -203,6 +203,13 @@
                                     </table>
                                 </div>
                                 <!-- END DATA TABLE-->
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Current Average Total Cholesterol = <%= info.averageTotalCholesterol.toFixed(5) %> mg/dL</a>.</p>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -224,7 +231,7 @@
             fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
                 method : "DELETE"
             })
-            location.reload(true);
+            window.location.reload();
         }
         
         function redirectToSelection(statCode){

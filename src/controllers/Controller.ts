@@ -2,7 +2,7 @@ import io from 'socket.io';
 
 import ControllerObserver from './ControllerObserver';
 import { IPractitioner } from '../models/Practitioner';
-import Monitor, { IMonitor } from '../models/Monitor';
+import Monitor, { IMonitorPair, IMonitor } from '../models/Monitor';
 import StatCode from '../models/StatCode';
 import { IPatient } from '../models/Patient';
 import Application from '../models/Application';
@@ -92,12 +92,13 @@ export default class Controller {
      */
     public monitorListPage(statCode: StatCode) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
-        let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
         if (user !== undefined){
-            if (monitor === undefined){
-                return this.view.monitorListPage(statCode, user, []);
+            let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
+            let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitor(statCode)?.toJSON();
+            if (monitor === undefined || monitorInfo === undefined){
+                return this.view.monitorListPage(statCode, user, [], null);
             }
-            return this.view.monitorListPage(statCode, user, monitor);
+            return this.view.monitorListPage(statCode, user, monitor, monitorInfo);
         }
         return this.loginPage();
     }
@@ -109,7 +110,7 @@ export default class Controller {
      */
     public monitorSelectionPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
-        let monitor: Array<IMonitor> | undefined = this.model.getUser()?.getPatientsWithMeasurement(statCode);
+        let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getPatientsWithMeasurement(statCode);
         if (user !== undefined){
             if (monitor !== undefined){
                 return this.view.monitorSelectionPage(statCode, user, monitor);

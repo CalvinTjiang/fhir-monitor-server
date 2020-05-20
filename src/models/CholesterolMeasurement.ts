@@ -3,20 +3,14 @@ import Measurement, { IMeasurement } from "./Measurement";
 
 export interface ICholesterolMeasurement extends IMeasurement{
     totalCholesterol : number,
-    unit : string,
-    isAboveAverage : boolean
+    unit : string
 }
 /**
  * A CholesterolMeasurement class with total cholesterol
  */
 export default class CholesterolMeasurement extends Measurement {
-    private static averageTotalCholesterol : number;
     private totalCholesterol: number;
     private unit : string;
-
-    public static setAverage(averageTotalCholesterol : number) : void{
-        CholesterolMeasurement.averageTotalCholesterol = averageTotalCholesterol;
-    }
 
     constructor(data: ICholesterolMeasurement) {
         super(StatCode.TOTAL_CHOLESTEROL, data.effectiveDateTime);
@@ -72,8 +66,7 @@ export default class CholesterolMeasurement extends Measurement {
             statCode : this.statCode,
             effectiveDateTime: this.effectiveDateTime,
             totalCholesterol : this.totalCholesterol,
-            unit : this.unit,
-            isAboveAverage : this.totalCholesterol > CholesterolMeasurement.averageTotalCholesterol
+            unit : this.unit
         };
     }
 

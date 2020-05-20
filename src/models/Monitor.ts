@@ -2,16 +2,18 @@ import Subject from "./Subject";
 import StatCode from "./StatCode";
 import Patient, { IPatient } from "./Patient";
 import Measurement, { IMeasurement } from "./Measurement";
-export interface IMonitor{
+export interface IMonitorPair{
     patient : IPatient,
     measurement : IMeasurement | null
+}
+export interface IMonitor{
+    statCode : string,
 }
 /**
  * Abstract class measurement for measurements of patient's vital
  */
 export default abstract class Monitor extends Subject{
     private static readonly MIN_UPDATE_INTERVAL = 30000;
-    private title: string;
     private statCode: StatCode;
     private updateInterval : number;
     // protected patients : Set<Patient>;
@@ -19,9 +21,8 @@ export default abstract class Monitor extends Subject{
     // initialise and empty timeoutFunction, and a tiemout id
     private intervalID : NodeJS.Timeout = setInterval(() => {}, Monitor.MIN_UPDATE_INTERVAL);
 
-    constructor(title : string, statCode : StatCode){
+    constructor(statCode : StatCode){
         super();
-        this.title = title;
         this.statCode = statCode;
         // this.patients = new Set<Patient>();
         this.patients = {};
@@ -33,8 +34,8 @@ export default abstract class Monitor extends Subject{
      * Get the patient details and measurement detail
      * @returns array of object that contain the patient and measurement details.
      */
-    public getPatientsWithMeasurement() : Array<IMonitor>{
-        let copyPatients : Array<IMonitor> = [];
+    public getPatientsWithMeasurement() : Array<IMonitorPair>{
+        let copyPatients : Array<IMonitorPair> = [];
         for (let id of Object.keys(this.patients)){
             let currentPatient : Patient = this.patients[id];
             let measurement : Measurement | null = currentPatient.getMeasurement(this.statCode);
@@ -131,4 +132,6 @@ export default abstract class Monitor extends Subject{
      * @returns a promise boolean that indicate if any update has occurs
      */
     public abstract getFHIRData() : Promise<boolean>;
+
+    public abstract toJSON(): IMonitor;
 }

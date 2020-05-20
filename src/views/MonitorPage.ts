@@ -1,5 +1,5 @@
 import ejs from "ejs";
-import { IMonitor } from "../models/Monitor";
+import { IMonitorPair, IMonitor } from "../models/Monitor";
 import { IPractitioner } from "../models/Practitioner";
 import StatCode from "../models/StatCode";
 
@@ -23,15 +23,16 @@ export default class MonitorPage{
      * Get the monitored patients list page
      * @param statCode statCode enumeration for selecting monitor
      * @param user an IPractitioner object that contain the currently logged in user data
-     * @param monitor an Array of IMonitor object that contain the details of patient and its measurement according to statCode
+     * @param monitor an Array of IMonitorPair object that contain the details of patient and its measurement according to statCode
      * @returns a Promise object that will return the HTML data in string form
      */
-    public listPage(user : IPractitioner, monitor : Array<IMonitor>): Promise<string>{
+    public listPage(user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor): Promise<string>{
         return ejs.renderFile(
             this.resourcePath, {
                 user : user,
                 statCode : this.statCode, 
-                db : monitor
+                db : monitor,
+                info : monitorInfo
             })
     }
 
@@ -39,10 +40,10 @@ export default class MonitorPage{
      * Get the monitor patients selection page
      * @param statCode statCode enumeration for selecting monitor
      * @param user an IPractitioner object that contain the currently logged in user data
-     * @param monitor an Array of IMonitor object that contain the details of patient and its measurement according to statCode
+     * @param monitor an Array of IMonitorPair object that contain the details of patient and its measurement according to statCode
      * @returns a Promise object that will return the HTML data in string form
      */
-    public selectionPage(user : IPractitioner, monitor : Array<IMonitor>): Promise<string>{
+    public selectionPage(user : IPractitioner, monitor : Array<IMonitorPair>): Promise<string>{
         return ejs.renderFile(
             __dirname + "/resources/monitor-selection.html", {
                 user : user,

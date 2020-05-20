@@ -153,7 +153,17 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <!-- DATA TABLE -->
-                                <h3 class="title-5 m-b-35">data table</h3>
+                                <!-- DATA TABLE-->
+                                <div class="table-data__tool">
+                                    <div class="table-data__tool-left">
+                                        <h3 class="title-5 m-b-35" style="margin-top: 10px;margin-left:12px;margin-left:0px;">Data Table</h3>
+                                    </div>
+                                    
+                                    <div class="table-data__tool-right">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitorPatients('<%= statCode %>')"> 
+                                            <i class="zmdi zmdi-plus"></i>Add Selected Patient</button>
+                                    </div>
+                                </div>
                                 <div class="table-responsive table-responsive-data2">
                                     <table class="table table-data2">
                                         <thead>
@@ -182,16 +192,12 @@
                                                             <span class="status--denied">Patient doesn't have observation with code (<%= statCode %>)</span>
                                                         </td>
                                                         <td>
-                                                            <label class="au-checkbox">
-                                                                <input type="checkbox" disabled >
-                                                                <span class="au-checkmark"></span>
-                                                            </label>
                                                         </td>
                                                     <% } %>
                                                     
                                                     <% if (db[i].measurement !== null) { %>                                                   
                                                         <td>
-                                                            <span class="status--process">Patient doesn't have observation with code (<%= statCode %>)</span>
+                                                            <span class="status--process">Patient can be monitored for observation with code (<%= statCode %>)</span>
                                                         </td>
                                                         <td>
                                                             <label class="au-checkbox">

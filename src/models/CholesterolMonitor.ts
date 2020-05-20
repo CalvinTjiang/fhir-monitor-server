@@ -1,17 +1,22 @@
-import Monitor from "./Monitor";
+import Monitor, { IMonitor } from "./Monitor";
 import fetch from "node-fetch";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";
-import CholesterolMeasurement from "./CholesterolMeasurement";
+import CholesterolMeasurement, { ICholesterolMeasurement } from "./CholesterolMeasurement";
+
+export interface ICholesterolMonitor extends IMonitor{
+    averageTotalCholesterol : number
+}
 
 /**
  * Abstract class measurement for measurements of patient's vital
  */
 export default class CholesterolMonitor extends Monitor {
-    constructor(title : string){
-        super(title, StatCode.TOTAL_CHOLESTEROL);
-        // console.log("New monitor created");
+    private averageTotalCholesterol : number = 0;
+
+    constructor(){
+        super(StatCode.TOTAL_CHOLESTEROL);
     }
 
     /**
@@ -57,10 +62,7 @@ export default class CholesterolMonitor extends Monitor {
                 }
 
                 let updated : boolean = false;
-                //total cholesterol and total measurement to countAverage
-                let totalCholesterol : number = 0;
-                let totalMeasurement : number = 0;
-
+                console.log("Refreshing data");
                 // for each entry on the response
                 for (let entry of data.entry){
                     // Get the required data and object reference
@@ -73,34 +75,68 @@ export default class CholesterolMonitor extends Monitor {
                         statCode: this.getStatCode(),
                         effectiveDateTime : new Date(resource.effectiveDateTime),
                         totalCholesterol : resource.valueQuantity.value,
-                        unit : resource.valueQuantity.unit,
-                        isAboveAverage : false
+                        unit : resource.valueQuantity.unit
                     }
 
                     // Update the measurement
                     if (oldMeasurement !== null){
                         if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
                             updated = oldMeasurement.update(newMeasurement) || updated;
-                            totalCholesterol += newMeasurement.totalCholesterol;
-                            totalMeasurement += 1;
-                        }
+                        } 
                     } else {
                         this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
                         updated = true;
-                        totalCholesterol += newMeasurement.totalCholesterol;
-                        totalMeasurement += 1;
                     }    
                 }
-                // console.log(`Refreshed monitor result ${updated}`);
-                // console.log(`    found data: ${data.total}`)
-
-                if (totalMeasurement === 0) {
-                    CholesterolMeasurement.setAverage(0);
-                } else {
-                    CholesterolMeasurement.setAverage(totalCholesterol/totalMeasurement);
+                if (updated){
+                    console.log("New update found!");
+                } else{
+                    console.log("Our data is still up to date!");
                 }
-
-                return updated
+                this.calculateAverageTotalCholesterol();
+                return updated;
             });
+    }
+
+    public calculateAverageTotalCholesterol() : void{
+        let newAverageTotalCholesterol = 0
+        for (let patient of Object.values(this.patients)){
+            let measurement : Measurement | null = patient.getMeasurement(this.getStatCode());
+            if (measurement !== null){
+                newAverageTotalCholesterol += (measurement.toJSON() as ICholesterolMeasurement)["totalCholesterol"];
+            }
+        }
+        newAverageTotalCholesterol /= Object.values(this.patients).length;
+        if (this.averageTotalCholesterol != newAverageTotalCholesterol){
+            console.log(`New Average Total Cholesterol ${newAverageTotalCholesterol}\n`);
+            this.averageTotalCholesterol = newAverageTotalCholesterol;
+            this.notify();
+        }
+        
+    }
+
+    /**
+     * Remove a patient from this monitor.
+     * @param patient a patient to be removed from this monitor's patients
+     */
+    public removePatient(patient : Patient) : void{
+        delete this.patients[patient.getId()];
+        this.calculateAverageTotalCholesterol();
+    }
+
+    /**
+     * Add a patient to be monitored.
+     * @param patient a Patient object to add to this monitor's patients.
+     */
+    public addPatient(patient: Patient) : void{
+        this.patients[patient.getId()] = patient;
+        this.calculateAverageTotalCholesterol();
+    }
+
+    public toJSON(): ICholesterolMonitor{
+        return {
+            statCode : this.getStatCode(),
+            averageTotalCholesterol : this.averageTotalCholesterol
+        };
     }
 }
