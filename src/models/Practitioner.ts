@@ -62,8 +62,8 @@ export default class Practitioner {
                 for (let entry of data.entry){
                     let resource = entry.resource;
                     if (resource.resourceType === "Patient"){
-                        totalPatient++;
                         if (resource.deceasedDateTime === undefined){
+                            totalPatient++;
                             let address : Address = new Address(
                                 resource.address[0].city,
                                 resource.address[0].state,
