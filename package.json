@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "start": "ts-node router.ts"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "node-fetch": "^2.6.0",
     "s": "^1.0.0",
     "socket.io": "^2.3.0",
+    "ts-node": "^8.10.1",
     "typescript": "^3.8.3"
   }
 }
