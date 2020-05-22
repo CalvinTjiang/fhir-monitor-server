@@ -25,15 +25,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-// GET Method
+// === GET Method ===
+// Base Page
 app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
+// Error Page
 app.get('/error', (req, res)=>{
     res.send("An Error has been occured!");
 });
 
+// Login Page
 app.get('/login', (req, res)=>{
     controller.loginPage()
         .then((page)=>{
@@ -44,6 +47,7 @@ app.get('/login', (req, res)=>{
         })
 })
 
+// Index Page 
 app.get('/index', (req, res)=>{
     controller.indexPage()
         .then((page)=>{
@@ -54,6 +58,7 @@ app.get('/index', (req, res)=>{
         })
 })
 
+// Patient's Detail Page
 app.get('/patient/:patient', (req, res)=>{
     controller.patientPage(req.params.patient)
         .then((page)=>{
@@ -64,6 +69,7 @@ app.get('/patient/:patient', (req, res)=>{
         })
 })
 
+// Monitor Patients Selection Page
 app.get('/monitor/:statCode/selection', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
@@ -79,6 +85,7 @@ app.get('/monitor/:statCode/selection', (req, res)=>{
     }
 })
 
+// Monitor Setting Page
 app.get('/monitor/:statCode/setting', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
@@ -94,6 +101,7 @@ app.get('/monitor/:statCode/setting', (req, res)=>{
     }
 })
 
+// Monitor Patient List Page
 app.get('/monitor/:statCode', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
@@ -111,7 +119,8 @@ app.get('/monitor/:statCode', (req, res)=>{
 })
 
 
-// POST Method
+// === POST Method ===
+// Login feature
 app.post('/login', (req, res)=>{
     let ID: string = req.body.id;
     if (ID === undefined){
@@ -130,6 +139,7 @@ app.post('/login', (req, res)=>{
         })
 })
 
+// Add patients to a monitor
 app.post('/api/monitor/:statCode/patients', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
@@ -141,6 +151,7 @@ app.post('/api/monitor/:statCode/patients', (req, res)=>{
     res.json();
 })
 
+// Update a monitor's interval
 app.post('/api/monitor/:statCode/interval/:interval', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
@@ -150,7 +161,8 @@ app.post('/api/monitor/:statCode/interval/:interval', (req, res)=>{
     res.json();
 })
 
-// DELETE Method
+// === DELETE Method ===
+// Delete a patient from a monitor
 app.delete('/api/monitor/:statCode/patient/:patient', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
