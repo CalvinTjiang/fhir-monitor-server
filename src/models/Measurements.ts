@@ -19,7 +19,7 @@ export default class Measurements {
 
         // check if there is duplicate
         for (let m of this.measurements[statCode]) {
-            if (measurement.getEffectiveDateTime() == m.getEffectiveDateTime()) {
+            if (measurement.getEffectiveDateTime().getTime() == m.getEffectiveDateTime().getTime()) {
                 return false;
             }
         }

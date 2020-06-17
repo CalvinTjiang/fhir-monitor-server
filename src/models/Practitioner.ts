@@ -26,8 +26,7 @@ export default class Practitioner {
     constructor(identifier: string, name : string, email : string) {
         this.identifier = identifier;
         this.name = name;
-        this.email = email
-        // this.patients = [];
+        this.email = email;
         this.patients = {};
         this.monitors = new Monitors();
     }
@@ -153,6 +152,7 @@ export default class Practitioner {
     private processFHIRData(statCode : StatCode, resource : any) : number{
         let PATIENT = "Patient/".length;
         let patientId : string = resource.subject.reference.slice(PATIENT);
+        let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
         let newMeasurement;
         switch(statCode) {
             case StatCode.TOTAL_CHOLESTEROL:
@@ -164,7 +164,6 @@ export default class Practitioner {
                     unit : resource.valueQuantity.unit
                 }
 
-                let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
                 // Update the measurement if the patient has previous measurement, if not add ne measurement
                 if (oldMeasurement !== null){
                     if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
@@ -199,9 +198,18 @@ export default class Practitioner {
                             newMeasurement.unit = comp.valueQuantity.unit;
                             break;
                     }
-                }                
-                this.patients[patientId].addMeasurement(new BloodPressureMeasurement(newMeasurement))
-                return 1;
+                }                             
+                // Update the measurement if the patient has previous measurement, if not add ne measurement
+                if (oldMeasurement !== null){
+                    if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                        oldMeasurement.update(newMeasurement);
+                        return 1;
+                    }
+                } else {
+                    this.patients[patientId].addMeasurement(new BloodPressureMeasurement(newMeasurement))
+                    return 1;
+                }  
+                return 0;
         }
         return 0;
 

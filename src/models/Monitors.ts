@@ -3,6 +3,7 @@ import Monitor from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
 import Patient from "./Patient";
 import BloodPressureMonitor from "./BloodPressureMonitor";
+import SystolicMonitor from "./SystolicMonitor";
 
 /**
  *  class Monitors which are aggregate of monitor
@@ -24,6 +25,10 @@ export default class Monitors {
                 this.monitors[statCode] = new BloodPressureMonitor();
                 break;
                 
+            case(StatCode.SYSTOLIC_BLOOD_PRESSURE):
+                this.monitors[statCode] = new SystolicMonitor();
+                break;
+
             default:
                 break;
         }

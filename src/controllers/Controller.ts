@@ -30,6 +30,7 @@ export default class Controller {
         
         this.view.addMonitorPage(new MonitorPage("/resources/total_cholesterol/", StatCode.TOTAL_CHOLESTEROL));
         this.view.addMonitorPage(new MonitorPage("/resources/blood_pressure/", StatCode.BLOOD_PRESSURE));
+        this.view.addMonitorPage(new MonitorPage("/resources/systolic_blood_pressure/", StatCode.SYSTOLIC_BLOOD_PRESSURE));
     }
 
     /**

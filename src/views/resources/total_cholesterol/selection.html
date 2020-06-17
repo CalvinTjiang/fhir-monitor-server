@@ -166,7 +166,7 @@
                                     </div>
                                     
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitorPatients('<%= statCode %>')"> 
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitoredPatients('<%= statCode %>')"> 
                                             <i class="zmdi zmdi-plus"></i>Add Selected Patient</button>
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@
                                     <div class="table-data__tool-left">
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitorPatients('<%= statCode %>')"> 
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitoredPatients('<%= statCode %>')"> 
                                             <i class="zmdi zmdi-plus"></i>Add Selected Patient</button>
                                     </div>
                                 </div>
@@ -246,7 +246,7 @@
 
     <script src='http://localhost:8080/js/utility.js'></script>
     <script>
-        function addMonitorPatients(statCode){
+        function addMonitoredPatients(statCode){
             let ids = []
             let patients = document.getElementsByClassName("patient-checkbox")
             for (let patient of patients){

@@ -164,7 +164,7 @@
                                         <h3 class="title-5 m-b-35" style="margin-top: 10px;">Blood Pressure Monitored Patient (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: rgb(240, 125, 132);" onclick="redirectToGraphView('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: rgb(240, 125, 132);" onclick="redirectToGraphView('8480-6')">
                                             <i class="zmdi zmdi-chart"></i>Graph View</button>
 
                                         <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
@@ -207,6 +207,11 @@
                                                     <% } %>
                                                     <td>
                                                         <div class="table-data-feature">
+                                                            <% if (db[i].measurements[0].systolic > info.systolicLimit) { %>
+                                                                <button class="item" data-toggle="tooltip" data-placement="top" style="background-color: rgb(240, 125, 132);" title="Track History Data" onclick="addMonitoredPatients('<%= db[i].patient.id %>', '8480-6')">
+                                                                    <i class="zmdi zmdi-chart" style="color: white;"></i>
+                                                                </button>
+                                                            <% } %>
                                                             <button class="item" data-toggle="tooltip" data-placement="top" title="Delete" onclick="removeMonitoredPatient('<%= db[i].patient.id %>', '<%= statCode %>')">
                                                                 <i class="zmdi zmdi-delete"></i>
                                                             </button>
@@ -245,6 +250,16 @@
     <script src='/socket.io/socket.io.js'></script>
     <script src='http://localhost:8080/js/utility.js'></script>
     <script>
+        function addMonitoredPatients(id, statCode){
+            fetch(`http://localhost:8080/api/monitor/${statCode}/patients`, {
+                method : "POST",    
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([id])
+            })
+        }
+
         function removeMonitoredPatient(id, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
                 method : "DELETE"

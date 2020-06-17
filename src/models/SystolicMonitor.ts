@@ -69,39 +69,26 @@ export default class SystolicMonitor extends Monitor {
                     // Get the required data and object reference
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(this.getStatCode());
-                    let systolicBloodPressure : number = 0;
-                    let unit : string = "";
-                    for (let comp of resource.component) {
-                        switch (comp.code.coding.code) {
-                            case StatCode.SYSTOLIC_BLOOD_PRESSURE:
-                                systolicBloodPressure = comp.valueQuantity.value;
-                                unit = comp.valueQuantity.unit;
-                                break;
-                            default:
-                                unit = comp.valueQuantity.unit;
-                                break;
-                        }
-                    }
 
-                    // Compile the data as dictionary
                     let newMeasurement = {
                         statCode: this.getStatCode(),
                         effectiveDateTime : new Date(resource.effectiveDateTime),
-                        systolic : systolicBloodPressure,
-                        unit : resource.valueQuantity.unit
+                        systolic : 0,
+                        unit : ""
                     }
-
+                    for (let comp of resource.component) {
+                        switch (comp.code.coding[0].code) {
+                            case StatCode.SYSTOLIC_BLOOD_PRESSURE:
+                                newMeasurement.systolic = comp.valueQuantity.value;
+                                newMeasurement.unit = comp.valueQuantity.unit;
+                                break;
+                            default:
+                                newMeasurement.unit = comp.valueQuantity.unit;
+                                break;
+                        }
+                    }
                     // Update the measurement
-                    if (oldMeasurement !== null){
-                        // if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
-                            // updated = oldMeasurement.update(newMeasurement) || updated;
-                        // } 
-                        updated = this.patients[patientId].addMeasurement(new SystolicMeasurement(newMeasurement)) || updated;
-                    } else {
-                        this.patients[patientId].addMeasurement(new SystolicMeasurement(newMeasurement))
-                        updated = true;
-                    }    
+                    updated = this.patients[patientId].addMeasurement(new SystolicMeasurement(newMeasurement)) || updated;
                 }
                 if (updated){
                     console.log("New update found!");
@@ -136,6 +123,11 @@ export default class SystolicMonitor extends Monitor {
      */
     public addPatient(patient: Patient) : void{
         super.addPatient(patient);
+    }
+    
+    public updateInfo(info : ISystolicMonitor) : boolean{
+        this.systolicLimit = info.systolicLimit;
+        return true;
     }
 
     public toJSON(): ISystolicMonitor{

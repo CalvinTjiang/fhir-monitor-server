@@ -14,8 +14,10 @@ export interface IBloodPressureMonitor extends IMonitor{
  * Abstract class measurement for measurements of patient's vital
  */
 export default class BloodPressureMonitor extends Monitor {
-    private systolicLimit : number = 120;
-    private diastolicLimit: number = 85;
+    private static readonly DEFAULT_SYSTOLIC_LIMIT = 120;
+    private static readonly DEFAULT_DIASTOLIC_LIMIT = 85;
+    private systolicLimit : number = BloodPressureMonitor.DEFAULT_SYSTOLIC_LIMIT;
+    private diastolicLimit: number = BloodPressureMonitor.DEFAULT_DIASTOLIC_LIMIT;
 
     constructor(){
         super(StatCode.BLOOD_PRESSURE);
@@ -79,7 +81,7 @@ export default class BloodPressureMonitor extends Monitor {
                         unit : ""
                     }
                     for (let comp of resource.component) {
-                        switch (comp.code.coding.code) {
+                        switch (comp.code.coding[0].code) {
                             case StatCode.DIASTOLIC_BLOOD_PRESSURE:
                                 newMeasurement.diastolic = comp.valueQuantity.value;
                                 newMeasurement.unit = comp.valueQuantity.unit;
@@ -96,10 +98,9 @@ export default class BloodPressureMonitor extends Monitor {
 
                     // Update the measurement
                     if (oldMeasurement !== null){
-                        // if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
-                            // updated = oldMeasurement.update(newMeasurement) || updated;
-                        // } 
-                        updated = this.patients[patientId].addMeasurement(new BloodPressureMeasurement(newMeasurement)) || updated;
+                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                            updated = oldMeasurement.update(newMeasurement) || updated;
+                        } 
                     } else {
                         this.patients[patientId].addMeasurement(new BloodPressureMeasurement(newMeasurement))
                         updated = true;

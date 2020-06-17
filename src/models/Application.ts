@@ -35,6 +35,7 @@ export default class Application{
                 this.user = new Practitioner(identifier, name, email);
                 this.addMonitor(StatCode.TOTAL_CHOLESTEROL);
                 this.addMonitor(StatCode.BLOOD_PRESSURE);
+                this.addMonitor(StatCode.SYSTOLIC_BLOOD_PRESSURE);
                 return this.user.getFHIRPatient("")
                     .then((res : boolean)=>{
                         if (this.user === null){

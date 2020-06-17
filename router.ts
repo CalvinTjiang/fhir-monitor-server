@@ -103,7 +103,6 @@ app.get('/monitor/:statCode/setting', (req, res)=>{
 })
 
 // Monitor Patient List Page
-
 app.get('/monitor/:statCode', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){

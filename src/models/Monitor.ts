@@ -123,6 +123,7 @@ export default abstract class Monitor extends Subject{
      */
     public addPatient(patient: Patient) : void{
         this.patients[patient.getId()] = patient;
+        this.getFHIRData();
     }
 
     /**
