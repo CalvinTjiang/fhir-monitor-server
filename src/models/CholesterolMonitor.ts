@@ -80,9 +80,10 @@ export default class CholesterolMonitor extends Monitor {
 
                     // Update the measurement
                     if (oldMeasurement !== null){
-                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
-                            updated = oldMeasurement.update(newMeasurement) || updated;
-                        } 
+                        // if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                        //     updated = oldMeasurement.update(newMeasurement) || updated;
+                        // } 
+                        updated = this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement)) || updated;
                     } else {
                         this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
                         updated = true;

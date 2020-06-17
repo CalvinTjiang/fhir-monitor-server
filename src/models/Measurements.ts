@@ -8,7 +8,7 @@ export default class Measurements {
     /**
      * Add measurement to this Measurements, make sure there are only 5 maximum data with the latest effectiveDateTime
      * @param measurement the measurement that will be added to this measurements
-     * @return boolean true if the given measurement is new measurement and it is properly added to the array
+     * @return boolean true if the given measurement is new and latest measurement
      */
     public addMeasurement(measurement: Measurement) : boolean{
         let statCode: StatCode = measurement.getStatCode();
@@ -34,10 +34,11 @@ export default class Measurements {
             }
         }
 
-        let updated: boolean = true;
+        let updated: boolean = false;
         // pop from array if length is greater than 5
         if (this.measurements[statCode].length > Measurements.MAX_DATA_COUNT_EACH_MEASUREMENT) {
-            updated = this.measurements[statCode].pop() != measurement;
+            this.measurements[statCode].pop();
+            updated = this.measurements[statCode][0] == measurement;
         }
         return updated;
     }
