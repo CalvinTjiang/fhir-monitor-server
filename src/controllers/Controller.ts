@@ -162,14 +162,6 @@ export default class Controller {
     }
 
     /**
-     * Create a new Monitor
-     * @param statCode statCode of new Monitor
-     */
-    public addMonitor(statCode: StatCode) : void {
-        this.model.addMonitor(statCode);
-    }
-
-    /**
      * Add a patient to a monitor
      * @param statCode statcode of monitor
      * @param ID ID of patient

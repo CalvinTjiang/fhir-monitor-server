@@ -54,7 +54,7 @@ export default abstract class Monitor extends Subject{
         return copyPatients;
     }
 
-    public startUpdate() {
+    private startUpdate() {
         let context = this;
         this.intervalID = setInterval(function() {
             context.update();
@@ -131,7 +131,7 @@ export default abstract class Monitor extends Subject{
      * Get the measurement data for all monitor's patient from FHIR Server
      * @returns a promise boolean that indicate if any update has occurs
      */
-    public abstract getFHIRData() : Promise<boolean>;
+    protected abstract getFHIRData() : Promise<boolean>;
 
     public abstract toJSON(): IMonitor;
 }
