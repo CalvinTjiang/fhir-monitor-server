@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Total Cholesterol - Graph View</title>
+    <title>Blood Pressure - Table View</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -150,21 +150,22 @@
                     </div>
                 </div>
             </header>
-            <!-- HEADER DESKTOP-->
+            <!-- END HEADER DESKTOP-->
 
             <!-- MAIN CONTENT-->
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-12">
+                        <div class="row m-t-30">
+                            <div class="col-md-12">
+                                <!-- DATA TABLE-->
                                 <div class="table-data__tool">
                                     <div class="table-data__tool-left">
-                                        <h3 class="title-5 m-b-35" style="margin-top: 10px;">Cholesterol Monitored Patient (<%= statCode %>)</h3>
+                                        <h3 class="title-5 m-b-35" style="margin-top: 10px;">Blood Pressure Monitored Patient (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: #333333;"onclick="redirectToTableView('<%= statCode %>')">
-                                            <i class="zmdi zmdi-view-list"></i>Table View</button>
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: rgb(240, 125, 132);" onclick="redirectToGraphView('<%= statCode %>')">
+                                            <i class="zmdi zmdi-chart"></i>Graph View</button>
 
                                         <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
                                             <i class="zmdi zmdi-plus"></i>Add Patient</button>
@@ -173,11 +174,58 @@
                                             <i class="zmdi zmdi-settings"></i>Setting</button>
                                     </div>
                                 </div>
-                                <div class="au-card m-b-30">
-                                    <div class="au-card-inner">
-                                        <h3 class="title-2 m-b-40">Total Cholesterol - Graph View</h3>
-                                        <canvas id="totalCholesterolChart"></canvas>
-                                    </div>
+                                <div class="table-responsive m-b-40">
+                                    <table class="table table-borderless table-data3">
+                                        <thead>
+                                            <tr>
+                                                <th>Effective Date Time</th>
+                                                <th>Name</th>
+                                                <th>Diastolic Value</th>
+                                                <th>Systolic Value</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for ( var i = 0; i< db.length;i++){  %>
+                                                <tr>
+                                                    <td><%= db[i].measurements[0].effectiveDateTime.toUTCString() %></td>
+                                                    <td><%= db[i].patient.givenName %> <%= db[i].patient.familyName %></td>
+                                                    <% if (db[i].measurements[0].diastolic > info.diastolicLimit) { %>
+                                                        <td class="denied"><%= db[i].measurements[0].diastolic %> <%= db[i].measurements[0].unit %></td>
+                                                    <% } %>
+
+                                                    <% if (db[i].measurements[0].diastolic <= info.diastolicLimit) { %>
+                                                        <td><%= db[i].measurements[0].diastolic %> <%= db[i].measurements[0].unit %></td>
+                                                    <% } %>
+
+                                                    <% if (db[i].measurements[0].systolic > info.systolicLimit) { %>
+                                                        <td class="denied"><%= db[i].measurements[0].systolic %> <%= db[i].measurements[0].unit %></td>
+                                                    <% } %>
+
+                                                    <% if (db[i].measurements[0].systolic <= info.systolicLimit) { %>
+                                                        <td><%= db[i].measurements[0].systolic %> <%= db[i].measurements[0].unit %></td>
+                                                    <% } %>
+                                                    <td>
+                                                        <div class="table-data-feature">
+                                                            <button class="item" data-toggle="tooltip" data-placement="top" title="Delete" onclick="removeMonitoredPatient('<%= db[i].patient.id %>', '<%= statCode %>')">
+                                                                <i class="zmdi zmdi-delete"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <%}%>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- END DATA TABLE-->
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Current Diastolic Limit = <%= info.diastolicLimit %> mg/dL</a>.</p>
+                                </div><div class="copyright">
+                                    <p>Current Systolic Limit = <%= info.systolicLimit %> mg/dL</a>.</p>
                                 </div>
                             </div>
                         </div>
@@ -191,12 +239,26 @@
                     </div>
                 </div>
             </div>
-            <!-- END MAIN CONTENT-->
         </div>
-        <!-- END PAGE CONTAINER-->
 
     </div>
+    <script src='/socket.io/socket.io.js'></script>
+    <script src='http://localhost:8080/js/utility.js'></script>
+    <script>
+        function removeMonitoredPatient(id, statCode){
+            fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
+                method : "DELETE"
+            })
+            window.location.reload();
+        }
 
+        let socketio = io("http://localhost:8080");
+        let statCode = "<%= statCode %>";
+        socketio.on(statCode, (msg) => {
+            window.location.reload();
+        })
+
+    </script>
     <!-- Jquery JS-->
     <script src="http://localhost:8080/vendor/jquery-3.2.1.min.js"></script>
     <!-- Bootstrap JS-->
@@ -219,53 +281,6 @@
     </script>
 
     <!-- Main JS-->
-    <script src='http://localhost:8080/js/utility.js'></script>
-    <script>
-        let database = JSON.parse('<%- JSON.stringify(db) %>');
-        let nameLabels = [];
-        let values = []
-        database.forEach(element => {
-            nameLabels.push(element.patient.givenName);
-            values.push(element.measurements[0].totalCholesterol);
-        });
-
-        (function ($) {
-            // USE STRICT
-            "use strict";
-            try {
-                // single bar chart
-                var ctx = document.getElementById("totalCholesterolChart");
-                if (ctx) {
-                    ctx.height = 150;
-                    var myChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: nameLabels,
-                            datasets: [{
-                                label: "Total Cholesterol",
-                                data: values,
-                                borderColor: "rgba(206, 35, 46, 0.9)",
-                                borderWidth: "2",
-                                backgroundColor: "rgba(240, 125, 132, 0.5)"
-                            }]
-                        },
-                        options: {
-                            legend: {
-                                position: 'top',
-                                labels: {fontFamily: 'Poppins'}
-                            },
-                            scales: {
-                                xAxes: [{ticks: {fontFamily: "Poppins"}}],
-                                yAxes: [{ticks: {beginAtZero: true, fontFamily: "Poppins"}}]
-                            }
-                        }
-                    });
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        })(jQuery);
-    </script>
     <script src="http://localhost:8080/js/main.js"></script>
 
 </body>

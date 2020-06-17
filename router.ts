@@ -173,6 +173,16 @@ app.post('/api/monitor/:statCode/patients', (req, res)=>{
 })
 
 // Update a monitor's interval
+app.post('/api/monitor/:statCode/info', (req, res)=>{
+    for (let code in StatCode){
+        if ((<any>StatCode)[code] == req.params.statCode){
+            controller.updateMonitorInfo((<any>StatCode)[code], req.body)
+        }
+    }
+    res.json();
+})
+
+// Update a monitor's interval
 app.post('/api/monitor/:statCode/interval/:interval', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){

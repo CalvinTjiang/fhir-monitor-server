@@ -1,11 +1,12 @@
 import fetch from "node-fetch";
-import Monitor, { IMonitorPair } from "./Monitor";
+import { IMonitorPair } from "./Monitor";
 import Monitors from "./Monitors";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";
 import CholesterolMeasurement from "./CholesterolMeasurement";
 import Address from "./Address";
+import BloodPressureMeasurement from "./BloodPressureMeasurement";
 
 export interface IPractitioner{
     identifier : string,
@@ -98,9 +99,7 @@ export default class Practitioner {
      * @returns a promise boolean that indicate if any update has occurs
      */
     public getFHIRPatientMeasurement(statCode : StatCode, link : string) : Promise<boolean>{
-        let PATIENT = "Patient/".length;
         let patientString : string = "";
-
         // construct query string for link to search for Observations
         Object.keys(this.patients).forEach(id => {
             if (patientString.length !== 0) {
@@ -128,49 +127,22 @@ export default class Practitioner {
                 }
 
                 // flag to indicate if any of the new observations are new
-                let updated : boolean = false; 
-
                 let totalStored:number = 0;
-                let totalUpdated:number = 0;
                 // for each entry on the Observations response
                 for (let entry of data.entry) {
                     // console.log(`Measurement with statCode ${statCode} is found for patient ${entry.resource.subject.reference.slice(PATIENT)}`);
                     // Get the required data and object reference
-                    let resource = entry.resource;
-                    let patientId : string = resource.subject.reference.slice(PATIENT);
-                    let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
-
-                    // Compile the measurements as an object
-                    let newMeasurement = {
-                        statCode: statCode,
-                        effectiveDateTime : new Date(resource.effectiveDateTime),
-                        totalCholesterol : resource.valueQuantity.value,
-                        unit : resource.valueQuantity.unit
-                    }
-
-                    // Update the measurement if the patient has previous measurement, if not add ne measurement
-                    if (oldMeasurement !== null){
-                        updated = this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement)) || updated
-                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
-                            // updated = oldMeasurement.update(newMeasurement) || updated;
-                            totalUpdated++;
-                        }
-                    } else {
-                        this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
-                        updated = true;
-                        totalStored++;
-                    }
+                    totalStored += this.processFHIRData(statCode, entry.resource);
                 }
 
-                console.log(`${totalStored} new measurement(s) are stored!`);
-                console.log(`${totalUpdated} measurement(s) are updated!\n`);
+                console.log(`${totalStored} measurement(s) are stored!`);
 
                 for (let link of data.link){
                     if (link.relation === "next"){
-                        return this.getFHIRPatientMeasurement(statCode, link.url) || updated;
+                        return this.getFHIRPatientMeasurement(statCode, link.url) || totalStored > 0;
                     }
                 }
-                return updated;
+                return totalStored > 0;
 
             }).catch((error)=>{
                 console.log(error);
@@ -178,6 +150,62 @@ export default class Practitioner {
             });
     }
     
+    private processFHIRData(statCode : StatCode, resource : any) : number{
+        let PATIENT = "Patient/".length;
+        let patientId : string = resource.subject.reference.slice(PATIENT);
+        let newMeasurement;
+        switch(statCode) {
+            case StatCode.TOTAL_CHOLESTEROL:
+                // Compile the measurements as an object
+                newMeasurement = {
+                    statCode: statCode,
+                    effectiveDateTime : new Date(resource.effectiveDateTime),
+                    totalCholesterol : resource.valueQuantity.value,
+                    unit : resource.valueQuantity.unit
+                }
+
+                let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(statCode);
+                // Update the measurement if the patient has previous measurement, if not add ne measurement
+                if (oldMeasurement !== null){
+                    if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                        oldMeasurement.update(newMeasurement);
+                        return 1;
+                    }
+                } else {
+                    this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement))
+                    return 1;
+                }
+                return 0;
+
+            case StatCode.BLOOD_PRESSURE:
+                newMeasurement = {
+                    statCode: statCode,
+                    effectiveDateTime : new Date(resource.effectiveDateTime),
+                    diastolic : 0,
+                    systolic : 0,
+                    unit : ""
+                };
+                for (let comp of resource.component) {
+                    switch (comp.code.coding[0].code) {
+                        case StatCode.DIASTOLIC_BLOOD_PRESSURE:
+                            newMeasurement.diastolic = comp.valueQuantity.value;
+                            newMeasurement.unit = comp.valueQuantity.unit;
+                            break;
+                        case StatCode.SYSTOLIC_BLOOD_PRESSURE:
+                            newMeasurement.systolic = comp.valueQuantity.value;
+                            newMeasurement.unit = comp.valueQuantity.unit;
+                            break;
+                        default:
+                            newMeasurement.unit = comp.valueQuantity.unit;
+                            break;
+                    }
+                }                
+                this.patients[patientId].addMeasurement(new BloodPressureMeasurement(newMeasurement))
+                return 1;
+        }
+        return 0;
+
+    }
     /**
      * Get practitioner's identifier.
      * @returns returns the practitioner's identifier.
@@ -209,21 +237,27 @@ export default class Practitioner {
      * @param statCode a statCode enumeration
      * @returns array of object that contain the patient and measurement details.
      */
-    public getPatientsWithMeasurement(statCode : StatCode) : Array<IMonitorPair>{
+    public getPatientsWithMeasurements(statCode : StatCode) : Array<IMonitorPair>{
         let copyPatients : Array<IMonitorPair> = [];
         Object.keys(this.patients).forEach(id => {
             let patient:Patient = this.patients[id];
-            let measurement : Measurement | null = patient.getMeasurement(statCode);
-            if (measurement === null){
+            let measurements : Array<Measurement> | null = patient.getMeasurements(statCode);
+            if (measurements === null){
                 copyPatients.push({
                     patient : patient.toJSON(), 
-                    measurement : measurement
+                    measurements : measurements
                 });
             } else {
-                copyPatients.push({
+                let copyPatient : IMonitorPair = {
                     patient : patient.toJSON(), 
-                    measurement : measurement.toJSON()
-                });
+                    measurements : []
+                };
+                measurements.forEach(element => {
+                    if (copyPatient.measurements != null) {
+                        copyPatient.measurements.push(element.toJSON());
+                    }
+                })
+                copyPatients.push(copyPatient);
             }
         });
         return copyPatients;

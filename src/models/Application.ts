@@ -3,6 +3,7 @@ import Observer from "../observers/Observer";
 import fetch from "node-fetch";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
+import { IMonitor } from "./Monitor";
 
 export default class Application{
     private user : Practitioner | null;
@@ -33,12 +34,14 @@ export default class Application{
                 let email : string = resource.telecom[0].value;
                 this.user = new Practitioner(identifier, name, email);
                 this.addMonitor(StatCode.TOTAL_CHOLESTEROL);
+                this.addMonitor(StatCode.BLOOD_PRESSURE);
                 return this.user.getFHIRPatient("")
                     .then((res : boolean)=>{
                         if (this.user === null){
                             return false;
                         }
-                        this.user.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL, "")
+                        this.user.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL, "");
+                        this.user.getFHIRPatientMeasurement(StatCode.BLOOD_PRESSURE, "");
                         return true;
                     });
             });
@@ -98,5 +101,15 @@ export default class Application{
      */
     public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
         return this.user?.getMonitors().getMonitor(statCode)?.setUpdateInterval(interval)
+    }
+
+    /**
+     * Update a certain monitor's infospecified by the statcode
+     * @param statCode statcode of monitor
+     * @param info the new interval measured in millisecond
+     * @returns a boolean | undefined indicated if the interval was updated or not.
+     */
+    public updateMonitorInfo(statCode:StatCode, info:IMonitor) : boolean | undefined{
+        return this.user?.getMonitors().getMonitor(statCode)?.updateInfo(info);
     }
 }

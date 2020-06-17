@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Cholesterol Monitor (<%= statCode %>)</title>
+    <title>Total Cholesterol - Table View</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -188,16 +188,16 @@
                                         <tbody>
                                             <% for ( var i = 0; i< db.length;i++){  %>
                                                 <tr>
-                                                    <td><%= db[i].measurement.effectiveDateTime.toUTCString() %></td>
+                                                    <td><%= db[i].measurements[0].effectiveDateTime.toUTCString() %></td>
                                                     <td><%= db[i].patient.givenName %> <%= db[i].patient.familyName %></td>
-                                                    <% if (db[i].measurement.totalCholesterol > info.averageTotalCholesterol) { %>
+                                                    <% if (db[i].measurements[0].totalCholesterol > info.averageTotalCholesterol) { %>
                                                         <td class="denied">Above Average</td>
-                                                        <td class="denied"><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
+                                                        <td class="denied"><%= db[i].measurements[0].totalCholesterol %> <%= db[i].measurements[0].unit %></td>
                                                     <% } %>
 
-                                                    <% if (db[i].measurement.totalCholesterol <= info.averageTotalCholesterol) { %>
+                                                    <% if (db[i].measurements[0].totalCholesterol <= info.averageTotalCholesterol) { %>
                                                         <td class="process">Good</td>
-                                                        <td><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
+                                                        <td><%= db[i].measurements[0].totalCholesterol %> <%= db[i].measurements[0].unit %></td>
                                                     <% } %>
                                                     <td>
                                                         <div class="table-data-feature">
@@ -235,25 +235,13 @@
 
     </div>
     <script src='/socket.io/socket.io.js'></script>
+    <script src='http://localhost:8080/js/utility.js'></script>
     <script>
         function removeMonitoredPatient(id, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
                 method : "DELETE"
             })
             window.location.reload();
-        }
-        
-        function redirectToSelection(statCode){
-            location.href = `http://localhost:8080/monitor/${statCode}/selection`
-        }
-
-        function redirectToGraphView(statCode){
-            location.href = `http://localhost:8080/monitor/${statCode}/graph`
-        }
-
-
-        function redirectToSetting(statCode){
-            location.href = `http://localhost:8080/monitor/${statCode}/setting`
         }
 
         let socketio = io("http://localhost:8080");

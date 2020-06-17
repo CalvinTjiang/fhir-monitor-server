@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";
-import BloodPressureMeasurement, { IBloodPressureMeasurement } from "./BloodPressureMeasurement";
+import BloodPressureMeasurement from "./BloodPressureMeasurement";
 
 export interface IBloodPressureMonitor extends IMonitor{
     systolicLimit : number,
@@ -14,8 +14,8 @@ export interface IBloodPressureMonitor extends IMonitor{
  * Abstract class measurement for measurements of patient's vital
  */
 export default class BloodPressureMonitor extends Monitor {
-    private systolicLimit : number = 0;
-    private diastolicLimit: number = 0;
+    private systolicLimit : number = 120;
+    private diastolicLimit: number = 85;
 
     constructor(){
         super(StatCode.BLOOD_PRESSURE);
@@ -71,32 +71,27 @@ export default class BloodPressureMonitor extends Monitor {
                     let resource = entry.resource;
                     let patientId : string = resource.subject.reference.slice(PATIENT);
                     let oldMeasurement : Measurement | null = this.patients[patientId].getMeasurement(this.getStatCode());
-                    let systolicBloodPressure : number = 0;
-                    let diastolicBloodPressure : number = 0;
-                    let unit : string = "";
-                    for (let comp of resource.component) {
-                        switch (comp.code.coding.code) {
-                            case StatCode.DIASTOLIC_BLOOD_PRESSURE:
-                                diastolicBloodPressure = comp.valueQuantity.value;
-                                unit = comp.valueQuantity.unit;
-                                break;
-                            case StatCode.SYSTOLIC_BLOOD_PRESSURE:
-                                systolicBloodPressure = comp.valueQuantity.value;
-                                unit = comp.valueQuantity.unit;
-                                break;
-                            default:
-                                unit = comp.valueQuantity.unit;
-                                break;
-                        }
-                    }
-
-                    // Compile the data as dictionary
                     let newMeasurement = {
                         statCode: this.getStatCode(),
                         effectiveDateTime : new Date(resource.effectiveDateTime),
-                        systolic : systolicBloodPressure,
-                        diastolic : diastolicBloodPressure,
-                        unit : resource.valueQuantity.unit
+                        diastolic : 0,
+                        systolic : 0,
+                        unit : ""
+                    }
+                    for (let comp of resource.component) {
+                        switch (comp.code.coding.code) {
+                            case StatCode.DIASTOLIC_BLOOD_PRESSURE:
+                                newMeasurement.diastolic = comp.valueQuantity.value;
+                                newMeasurement.unit = comp.valueQuantity.unit;
+                                break;
+                            case StatCode.SYSTOLIC_BLOOD_PRESSURE:
+                                newMeasurement.systolic = comp.valueQuantity.value;
+                                newMeasurement.unit = comp.valueQuantity.unit;
+                                break;
+                            default:
+                                newMeasurement.unit = comp.valueQuantity.unit;
+                                break;
+                        }
                     }
 
                     // Update the measurement
@@ -144,6 +139,12 @@ export default class BloodPressureMonitor extends Monitor {
      */
     public addPatient(patient: Patient) : void{
         super.addPatient(patient);
+    }
+
+    public updateInfo(info : IBloodPressureMonitor) : boolean{
+        this.diastolicLimit = info.diastolicLimit;
+        this.systolicLimit = info.systolicLimit;
+        return true;
     }
 
     public toJSON(): IBloodPressureMonitor{

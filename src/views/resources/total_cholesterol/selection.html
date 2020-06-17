@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Tables</title>
+    <title>Total Cholesterol - Patients Selection</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -193,7 +193,7 @@
                                                         <td class="female-color"  style="color: #ff5bb4;">Female</td>
                                                     <% } %>
                                                     
-                                                    <% if (db[i].measurement === null) { %>                                                   
+                                                    <% if (db[i].measurements === null) { %>                                                   
                                                         <td>
                                                             <span class="status--denied">Patient doesn't have observation with code (<%= statCode %>)</span>
                                                         </td>
@@ -201,7 +201,7 @@
                                                         </td>
                                                     <% } %>
                                                     
-                                                    <% if (db[i].measurement !== null) { %>                                                   
+                                                    <% if (db[i].measurements !== null) { %>                                                   
                                                         <td>
                                                             <span class="status--process">Patient can be monitored for observation with code (<%= statCode %>)</span>
                                                         </td>
@@ -244,6 +244,7 @@
 
     </div>
 
+    <script src='http://localhost:8080/js/utility.js'></script>
     <script>
         function addMonitorPatients(statCode){
             let ids = []
@@ -260,7 +261,7 @@
                 },
                 body: JSON.stringify(ids)
             })
-            location.href = `http://localhost:8080/monitor/${statCode}`
+            redirectToTableView(statCode);
         }
     </script>
     <!-- Jquery JS-->
