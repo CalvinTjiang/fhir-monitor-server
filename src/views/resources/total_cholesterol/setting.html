@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Monitor Setting (<%= statCode %>)</title>
+    <title>Total Cholesterol - Setting</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -199,13 +199,13 @@
         </div>
 
     </div>
+    <script src='http://localhost:8080/js/utility.js'></script>
     <script>
         function setUpdateInterval(interval, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/interval/${interval}`, {
                 method : "POST"
             })
-
-            location.href = `http://localhost:8080/monitor/${statCode}`
+            redirectToTableView(statCode);
         }
     </script>
     <!-- Jquery JS-->
