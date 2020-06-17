@@ -23,7 +23,7 @@ export default class CholesterolMonitor extends Monitor {
      * Get the measurement data for all monitor's patient from FHIR Server
      * @returns a promise boolean that indicate if any update has occurs
      */
-    public getFHIRData() : Promise<boolean>{
+    protected getFHIRData() : Promise<boolean>{
         // console.log("Monitor update getFHRIData is called");
 
         // if monitor does not have any patient, return immediately
@@ -98,7 +98,7 @@ export default class CholesterolMonitor extends Monitor {
             });
     }
 
-    public calculateAverageTotalCholesterol() : void{
+    private calculateAverageTotalCholesterol() : void{
         let newAverageTotalCholesterol = 0
         for (let patient of Object.values(this.patients)){
             let measurement : Measurement | null = patient.getMeasurement(this.getStatCode());
@@ -120,7 +120,7 @@ export default class CholesterolMonitor extends Monitor {
      * @param patient a patient to be removed from this monitor's patients
      */
     public removePatient(patient : Patient) : void{
-        delete this.patients[patient.getId()];
+        super.removePatient(patient);
         this.calculateAverageTotalCholesterol();
     }
 
@@ -129,7 +129,7 @@ export default class CholesterolMonitor extends Monitor {
      * @param patient a Patient object to add to this monitor's patients.
      */
     public addPatient(patient: Patient) : void{
-        this.patients[patient.getId()] = patient;
+        super.addPatient(patient);
         this.calculateAverageTotalCholesterol();
     }
 
