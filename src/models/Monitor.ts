@@ -123,8 +123,8 @@ export default abstract class Monitor extends Subject{
      * Remove a patient from this monitor.
      * @param patient a patient to be removed from this monitor's patients
      */
-    public removePatient(patient : Patient) : void{
-        delete this.patients[patient.getId()];
+    public removePatient(ID : string) : void{
+        delete this.patients[ID];
     }
     
     /**

@@ -119,8 +119,8 @@ export default class CholesterolMonitor extends Monitor {
      * Remove a patient from this monitor.
      * @param patient a patient to be removed from this monitor's patients
      */
-    public removePatient(patient : Patient) : void{
-        super.removePatient(patient);
+    public removePatient(ID : string) : void{
+        super.removePatient(ID);
         this.calculateAverageTotalCholesterol();
     }
 

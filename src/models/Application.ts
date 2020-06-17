@@ -2,6 +2,7 @@ import Practitioner from "./Practitioner";
 import Observer from "../observers/Observer";
 import fetch from "node-fetch";
 import StatCode from "./StatCode";
+import Patient from "./Patient";
 
 export default class Application{
     private user : Practitioner | null;
@@ -56,7 +57,7 @@ export default class Application{
      * @param statCode statcode of the new monitor
      */
     public addMonitor(statCode: StatCode) {
-        this.user?.addMonitor(statCode);
+        this.user?.getMonitors().addMonitor(statCode);
     }
 
     /**
@@ -64,7 +65,7 @@ export default class Application{
      * @param statCode statcode of the new monitor
      */
     public addObserver(statCode: StatCode, observer : Observer) {
-        this.user?.getMonitor(statCode)?.addObserver(observer);
+        this.user?.getMonitors().getMonitor(statCode)?.addObserver(observer);
     }
 
 
@@ -74,7 +75,10 @@ export default class Application{
      * @param ID id of the patient to add to the monitor
      */
     public addMonitoredPatient(statCode:StatCode, ID:string) {
-        this.user?.addMonitoredPatient(statCode, ID);
+        let patient : Patient | null | undefined = this.user?.getPatient(ID);
+        if (patient){
+            this.user?.getMonitors().addMonitoredPatient(statCode, patient);
+        }
     }
 
     /**
@@ -83,7 +87,7 @@ export default class Application{
      * @param ID id of the patient to add to the monitor
      */
     public removeMonitoredPatient(statCode:StatCode, ID:string) {
-        this.user?.removeMonitoredPatient(statCode, ID);
+        this.user?.getMonitors().removeMonitoredPatient(statCode, ID);
     }
 
     /**
@@ -93,6 +97,6 @@ export default class Application{
      * @returns a boolean | undefined indicated if the interval was updated or not.
      */
     public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
-        return this.user?.getMonitor(statCode)?.setUpdateInterval(interval)
+        return this.user?.getMonitors().getMonitor(statCode)?.setUpdateInterval(interval)
     }
 }

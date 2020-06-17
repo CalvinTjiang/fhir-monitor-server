@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import Monitor, { IMonitorPair } from "./Monitor";
-import CholesterolMonitor from "./CholesterolMonitor";
+import Monitors from "./Monitors";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";
@@ -19,7 +19,7 @@ export default class Practitioner {
     private identifier: string;
     // private patients: Array<Patient>;
     private patients: {[id: string]: Patient};
-    private monitors: Array<Monitor>;
+    private monitors: Monitors;
     private name : string;
     private email : string;
     constructor(identifier: string, name : string, email : string) {
@@ -28,7 +28,7 @@ export default class Practitioner {
         this.email = email
         // this.patients = [];
         this.patients = {};
-        this.monitors = [];
+        this.monitors = new Monitors();
     }
 
     /**
@@ -229,61 +229,8 @@ export default class Practitioner {
         return copyPatients;
     }
 
-    /**
-     * Add a monitor to this Practitioner.
-     * @param monitor a Monitor object to add to this Practitioner monitors array.
-     */
-    public addMonitor(statCode: StatCode): void {
-        switch (statCode) {
-            case(StatCode.TOTAL_CHOLESTEROL):
-                this.monitors.push(new CholesterolMonitor());
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Get practitioner's monitor with the specified statCode.
-     * @param statCode a statCode enumeration
-     * @returns this method returns a Monitor if the statCode exists, null otherwise.
-     */
-    public getMonitor(statCode: StatCode): Monitor | null{
-        for (let index:number = 0; index < this.monitors.length; index++) {
-            if (this.monitors[index].getStatCode() === statCode) {
-                return this.monitors[index];
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Remove a monitor with the specified statCode from the Practitioner.
-     * @param statCode a statCode enumeration
-     */
-    public removeMonitor(statCode: StatCode): void{
-        for (let index:number = 0; index < this.monitors.length; index++) {
-            if (this.monitors[index].getStatCode() == statCode) {
-                this.monitors.splice(index, 1);
-            }
-        }
-    }
-
-    public addMonitoredPatient(statCode:StatCode, ID:string) {
-        let monitor:Monitor | null = this.getMonitor(statCode);
-        let patient:Patient | null = this.getPatient(ID);
-        if (monitor && patient) {
-            monitor.addPatient(patient);
-        }
-    }
-
-    public removeMonitoredPatient(statCode:StatCode, ID:string) {
-        let monitor:Monitor | null = this.getMonitor(statCode);
-        let patient:Patient | null = this.getPatient(ID);
-
-        if (monitor && patient) {
-            monitor.removePatient(patient);
-        }
+    public getMonitors() : Monitors{
+        return this.monitors;
     }
 
     public toJSON() : IPractitioner{

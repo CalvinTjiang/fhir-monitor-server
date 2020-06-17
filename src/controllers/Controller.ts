@@ -94,8 +94,8 @@ export default class Controller {
     public monitorListPage(statCode: StatCode, listType : ListType) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         if (user !== undefined){
-            let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
-            let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitor(statCode)?.toJSON();
+            let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.getPatientsWithMeasurement();
+            let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.toJSON();
             if (monitor === undefined || monitorInfo === undefined){
                 return this.view.monitorListPage(statCode, listType, user, [], null);
             }
@@ -128,7 +128,7 @@ export default class Controller {
      */
     public monitorSettingPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
-        let monitor: Monitor | undefined | null = this.model.getUser()?.getMonitor(statCode);
+        let monitor: Monitor | undefined | null = this.model.getUser()?.getMonitors().getMonitor(statCode);
         if (user !== undefined ){
             if (monitor !== null && monitor !== undefined){
                 return this.view.monitorSettingPage(statCode, user, monitor.getUpdateInterval() / 1000);
