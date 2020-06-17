@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Cholesterol Monitor (<%= statCode %>)</title>
+    <title>Tables</title>
 
     <!-- Fontfaces CSS-->
     <link href="http://localhost:8080/css/font-face.css" rel="stylesheet" media="all">
@@ -37,70 +37,76 @@
 
 <body class="animsition">
     <div class="page-wrapper">
-       <!-- HEADER MOBILE-->
-       <header class="header-mobile d-block d-lg-none">
-        <div class="header-mobile__bar">
-            <div class="container-fluid">
-                <div class="header-mobile-inner">
-                    <div class="logo">
-                        HEALTH MONITOR
+        <!-- HEADER MOBILE-->
+        <header class="header-mobile d-block d-lg-none">
+            <div class="header-mobile__bar">
+                <div class="container-fluid">
+                    <div class="header-mobile-inner">
+                        <div class="logo">
+                            HEALTH MONITOR
+                        </div>
+                        <button class="hamburger hamburger--slider" type="button">
+                            <span class="hamburger-box">
+                                <span class="hamburger-inner"></span>
+                            </span>
+                        </button>
                     </div>
-                    <button class="hamburger hamburger--slider" type="button">
-                        <span class="hamburger-box">
-                            <span class="hamburger-inner"></span>
-                        </span>
-                    </button>
                 </div>
             </div>
-        </div>
-        <nav class="navbar-mobile">
-            <div class="container-fluid">
-                <ul class="navbar-mobile__list list-unstyled">
-                    <li>
-                        <a class="js-arrow" href="http://localhost:8080/index">
-                            <i class="fas fa-tachometer-alt"></i>Patients</a>
-                    </li>
-                    <li class="has-sub">
-                        <a class="js-arrow" href="#">
-                            <i class="fas fa-table"></i>Monitors</a>
-                        <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
-                            <li>
-                                <a href="http://localhost:8080/monitor/2093-3">Cholesterol</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-    <!-- END HEADER MOBILE-->
-
-    <!-- MENU SIDEBAR-->
-    <aside class="menu-sidebar d-none d-lg-block">
-        <div class="logo">
-            HEALTH MONITOR
-        </div>
-        <div class="menu-sidebar__content js-scrollbar1">
-            <nav class="navbar-sidebar">
-                <ul class="list-unstyled navbar__list">
-                    <li>
-                        <a href="http://localhost:8080/index">
-                            <i class="fas fa-tachometer-alt"></i>Patients</a>
-                    </li>
-                    <li class="has-sub">
-                        <a class="js-arrow" href="#">
-                            <i class="fas fa-table"></i>Monitors</a>
-                        <ul class="list-unstyled navbar__sub-list js-sub-list">
-                            <li>
-                                <a href="http://localhost:8080/monitor/2093-3">Cholesterol</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+            <nav class="navbar-mobile">
+                <div class="container-fluid">
+                    <ul class="navbar-mobile__list list-unstyled">
+                        <li>
+                            <a class="js-arrow" href="http://localhost:8080/index">
+                                <i class="fas fa-tachometer-alt"></i>Patients</a>
+                        </li>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-table"></i>Monitors</a>
+                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                <li>
+                                    <a href="http://localhost:8080/monitor/2093-3">Total Cholesterol</a>
+                                </li>
+                                <li>
+                                    <a href="http://localhost:8080/monitor/55284-4">Blood Pressure</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </nav>
-        </div>
-    </aside>
-    <!-- END MENU SIDEBAR-->
+        </header>
+        <!-- END HEADER MOBILE-->
+
+        <!-- MENU SIDEBAR-->
+        <aside class="menu-sidebar d-none d-lg-block">
+            <div class="logo">
+                HEALTH MONITOR
+            </div>
+            <div class="menu-sidebar__content js-scrollbar1">
+                <nav class="navbar-sidebar">
+                    <ul class="list-unstyled navbar__list">
+                        <li>
+                            <a href="http://localhost:8080/index">
+                                <i class="fas fa-tachometer-alt"></i>Patients</a>
+                        </li>
+                        <li class="has-sub">
+                            <a class="js-arrow" href="#">
+                                <i class="fas fa-table"></i>Monitors</a>
+                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li>
+                                    <a href="http://localhost:8080/monitor/2093-3">Total Cholesterol</a>
+                                </li>
+                                <li>
+                                    <a href="http://localhost:8080/monitor/55284-4">Blood Pressure</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <!-- END MENU SIDEBAR-->
 
         <!-- PAGE CONTAINER-->
         <div class="page-container">
@@ -150,66 +156,78 @@
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-                        <div class="row m-t-30">
+                        <div class="row">
                             <div class="col-md-12">
+                                <!-- DATA TABLE -->
                                 <!-- DATA TABLE-->
                                 <div class="table-data__tool">
                                     <div class="table-data__tool-left">
-                                        <h3 class="title-5 m-b-35" style="margin-top: 10px;">Cholesterol Monitored Patient (<%= statCode %>)</h3>
+                                        <h3 class="title-5 m-b-35" style="margin-top: 10px;margin-left:12px;margin-left:0px;">Data Table</h3>
                                     </div>
+                                    
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
-                                            <i class="zmdi zmdi-plus"></i>Add Patient</button>
-                                            
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToSetting('<%= statCode %>')">
-                                            <i class="zmdi zmdi-settings"></i>Setting</button>
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitorPatients('<%= statCode %>')"> 
+                                            <i class="zmdi zmdi-plus"></i>Add Selected Patient</button>
                                     </div>
                                 </div>
-                                <div class="table-responsive m-b-40">
-                                    <table class="table table-borderless table-data3">
+                                <div class="table-responsive table-responsive-data2">
+                                    <table class="table table-data2">
                                         <thead>
                                             <tr>
-                                                <th>Effective Date Time</th>
+                                                <th>Birth Date</th>
                                                 <th>Name</th>
-                                                <th>Status</th>
-                                                <th>Total Cholesterol</th>
-                                                <th></th>
+                                                <th>Gender</th> 
+                                                <th>Description</th> 
+                                                <th>Add</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <% for ( var i = 0; i< db.length;i++){  %>
-                                                <tr>
-                                                    <td><%= db[i].measurement.effectiveDateTime.toUTCString() %></td>
+                                                <tr class="tr-shadow">
+                                                    <td><%= db[i].patient.birthDate.toUTCString() %></td>
                                                     <td><%= db[i].patient.givenName %> <%= db[i].patient.familyName %></td>
-                                                    <% if (db[i].measurement.totalCholesterol > info.averageTotalCholesterol) { %>
-                                                        <td class="denied">Above Average</td>
-                                                        <td class="denied"><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
+                                                    <% if (db[i].patient.gender == "male") { %>
+                                                        <td class="male-color" style="color: #32a1ff;">Male</td>
                                                     <% } %>
-
-                                                    <% if (db[i].measurement.totalCholesterol <= info.averageTotalCholesterol) { %>
-                                                        <td class="process">Good</td>
-                                                        <td><%= db[i].measurement.totalCholesterol %> <%= db[i].measurement.unit %></td>
+                                                    <% if (db[i].patient.gender == "female") { %>
+                                                        <td class="female-color"  style="color: #ff5bb4;">Female</td>
                                                     <% } %>
-                                                    <td>
-                                                        <div class="table-data-feature">
-                                                            <button class="item" data-toggle="tooltip" data-placement="top" title="Delete" onclick="removeMonitoredPatient('<%= db[i].patient.id %>', '<%= statCode %>')">
-                                                                <i class="zmdi zmdi-delete"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
+                                                    
+                                                    <% if (db[i].measurement === null) { %>                                                   
+                                                        <td>
+                                                            <span class="status--denied">Patient doesn't have observation with code (<%= statCode %>)</span>
+                                                        </td>
+                                                        <td>
+                                                        </td>
+                                                    <% } %>
+                                                    
+                                                    <% if (db[i].measurement !== null) { %>                                                   
+                                                        <td>
+                                                            <span class="status--process">Patient can be monitored for observation with code (<%= statCode %>)</span>
+                                                        </td>
+                                                        <td>
+                                                            <label class="au-checkbox">
+                                                                <input class="patient-checkbox" type="checkbox" value='<%= db[i].patient.id %>'>
+                                                                <span class="au-checkmark"></span>
+                                                            </label>
+                                                        </td>
+                                                    <% } %>
                                                 </tr>
+                                                <tr class="spacer"></tr>
                                             <%}%>
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- END DATA TABLE-->
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="copyright">
-                                    <p>Current Average Total Cholesterol = <%= info.averageTotalCholesterol.toFixed(5) %> mg/dL</a>.</p>
+                                
+                                <div class="table-data__tool" style="margin: 30px 0px;">
+                                    <div class="table-data__tool-left">
+                                    </div>
+                                    <div class="table-data__tool-right">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="addMonitorPatients('<%= statCode %>')"> 
+                                            <i class="zmdi zmdi-plus"></i>Add Selected Patient</button>
+                                    </div>
                                 </div>
+                                <!-- END DATA TABLE -->
                             </div>
                         </div>
                         <div class="row">
@@ -225,29 +243,25 @@
         </div>
 
     </div>
-    <script src='/socket.io/socket.io.js'></script>
+
     <script>
-        function removeMonitoredPatient(id, statCode){
-            fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
-                method : "DELETE"
+        function addMonitorPatients(statCode){
+            let ids = []
+            let patients = document.getElementsByClassName("patient-checkbox")
+            for (let patient of patients){
+                if (patient.checked){
+                    ids.push(patient.value)
+                } 
+            }
+            fetch(`http://localhost:8080/api/monitor/${statCode}/patients`, {
+                method : "POST",    
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ids)
             })
-            window.location.reload();
+            location.href = `http://localhost:8080/monitor/${statCode}`
         }
-        
-        function redirectToSelection(statCode){
-            location.href = `http://localhost:8080/monitor/${statCode}/selection`
-        }
-
-        function redirectToSetting(statCode){
-            location.href = `http://localhost:8080/monitor/${statCode}/setting`
-        }
-
-        let socketio = io("http://localhost:8080");
-        let statCode = "<%= statCode %>";
-        socketio.on(statCode, (msg) => {
-            window.location.reload();
-        })
-
     </script>
     <!-- Jquery JS-->
     <script src="http://localhost:8080/vendor/jquery-3.2.1.min.js"></script>

@@ -3,6 +3,7 @@ import MonitorPage from "./MonitorPage";
 import { IPractitioner } from "../models/Practitioner";
 import { IMonitorPair, IMonitor } from "../models/Monitor";
 import StatCode from "../models/StatCode";
+import ListType from "./ListType";
 import { IPatient } from "../models/Patient";
 
 export default class GUI{
@@ -69,11 +70,11 @@ export default class GUI{
      * @param monitor an Array of IMonitorPair object that contain the details of patient and its measurement according to statCode
      * @returns a Promise object that will return the HTML data in string form
      */
-    public monitorListPage(statCode : StatCode, user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor | null): Promise<string>{
+    public monitorListPage(statCode : StatCode, listType : ListType, user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor | null): Promise<string>{
         if (monitorInfo !== null){
             for (let monitorPage of this.monitorPages){
                 if (monitorPage.getStatCode() === statCode){
-                    return monitorPage.listPage(user, monitor, monitorInfo);
+                    return monitorPage.listPage(listType, user, monitor, monitorInfo);
                 }
             }
         }

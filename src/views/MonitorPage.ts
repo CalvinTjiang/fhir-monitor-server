@@ -2,6 +2,7 @@ import ejs from "ejs";
 import { IMonitorPair, IMonitor } from "../models/Monitor";
 import { IPractitioner } from "../models/Practitioner";
 import StatCode from "../models/StatCode";
+import ListType from "./ListType";
 
 export default class MonitorPage{
     private resourcePath : string;
@@ -26,14 +27,44 @@ export default class MonitorPage{
      * @param monitor an Array of IMonitorPair object that contain the details of patient and its measurement according to statCode
      * @returns a Promise object that will return the HTML data in string form
      */
-    public listPage(user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor): Promise<string>{
-        return ejs.renderFile(
-            this.resourcePath, {
-                user : user,
-                statCode : this.statCode, 
-                db : monitor,
-                info : monitorInfo
-            })
+    public listPage(listType : ListType, user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor): Promise<string>{
+        switch(listType){
+            case ListType.TABLE:
+                return ejs.renderFile(
+                    this.resourcePath + "table.html", {
+                        user : user,
+                        statCode : this.statCode, 
+                        db : monitor,
+                        info : monitorInfo
+                    })
+            
+            case ListType.GRAPH:
+                return ejs.renderFile(
+                    this.resourcePath + "graph.html", {
+                        user : user,
+                        statCode : this.statCode, 
+                        db : monitor,
+                        info : monitorInfo
+                    })
+
+            case ListType.TEXTUAL:
+                return ejs.renderFile(
+                    this.resourcePath + "textual.html", {
+                        user : user,
+                        statCode : this.statCode, 
+                        db : monitor,
+                        info : monitorInfo
+                    })
+
+            default:
+                return ejs.renderFile(
+                    this.resourcePath + "table.html", {
+                        user : user,
+                        statCode : this.statCode, 
+                        db : monitor,
+                        info : monitorInfo
+                    })
+        }
     }
 
     /**
@@ -45,7 +76,7 @@ export default class MonitorPage{
      */
     public selectionPage(user : IPractitioner, monitor : Array<IMonitorPair>): Promise<string>{
         return ejs.renderFile(
-            __dirname + "/resources/monitor-selection.html", {
+            this.resourcePath + "selection.html", {
                 user : user,
                 statCode : this.statCode, 
                 db : monitor
@@ -60,7 +91,7 @@ export default class MonitorPage{
      */
     public settingPage(user : IPractitioner, interval : number): Promise<string>{
         return ejs.renderFile(
-            __dirname + "/resources/monitor-setting.html", {
+            this.resourcePath + "setting.html", {
                 user : user,
                 statCode : this.statCode,
                 interval : interval
