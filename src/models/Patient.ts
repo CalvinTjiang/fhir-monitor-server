@@ -61,6 +61,11 @@ export default class Patient {
         return this.address; 
     }
 
+
+    public getMeasurements(statCode: StatCode) : Array<Measurement> | null {
+        return this.measurements.getMeasurements(statCode);
+    }
+
     /**
      * Get patient's measurement with the specified statCode.
      * @param statCode a statCode enumeration
