@@ -152,8 +152,9 @@ export default class Practitioner {
 
                     // Update the measurement if the patient has previous measurement, if not add ne measurement
                     if (oldMeasurement !== null){
+                        updated = this.patients[patientId].addMeasurement(new CholesterolMeasurement(newMeasurement)) || updated
                         if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
-                            updated = oldMeasurement.update(newMeasurement) || updated;
+                            // updated = oldMeasurement.update(newMeasurement) || updated;
                             totalUpdated++;
                         }
                     } else {
