@@ -8,6 +8,7 @@ import Controller from "./src/controllers/Controller";
 import GUI from "./src/views/GUI";
 import Application from "./src/models/Application";
 import StatCode from "./src/models/StatCode";
+import ListType from "./src/views/ListType";
 
 
 const PORT : number = 8080;
@@ -102,10 +103,11 @@ app.get('/monitor/:statCode/setting', (req, res)=>{
 })
 
 // Monitor Patient List Page
+
 app.get('/monitor/:statCode', (req, res)=>{
     for (let code in StatCode){
         if ((<any>StatCode)[code] == req.params.statCode){
-            controller.monitorListPage((<any>StatCode)[code])
+            controller.monitorListPage((<any>StatCode)[code], ListType.TABLE)
                 .then((page)=>{
                     res.send(page);
                 }).catch((error)=>{
@@ -114,7 +116,26 @@ app.get('/monitor/:statCode', (req, res)=>{
                 })
             break;
         }
-        
+    }
+})
+
+app.get('/monitor/:statCode/:listType', (req, res)=>{
+    for (let code in StatCode){
+        if ((<any>StatCode)[code] == req.params.statCode){
+            for (let type in ListType){
+                if ((<any>ListType)[type] == req.params.listType){
+                    controller.monitorListPage((<any>StatCode)[code], (<any>ListType)[type])
+                        .then((page)=>{
+                            res.send(page);
+                        }).catch((error)=>{
+                            console.log(error);
+                            res.redirect('/error');
+                        })
+                    break;
+                }
+            }
+            break;
+        }
     }
 })
 

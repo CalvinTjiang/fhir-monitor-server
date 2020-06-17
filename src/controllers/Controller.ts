@@ -9,6 +9,7 @@ import Application from '../models/Application';
 
 import GUI from '../views/GUI';
 import MonitorPage from '../views/MonitorPage';
+import ListType from '../views/ListType';
 /**
  * Controller class for managing input from user
  * 
@@ -27,7 +28,7 @@ export default class Controller {
         let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socketio);
         this.observers.push(controllerObserver);
         
-        this.view.addMonitorPage(new MonitorPage("/resources/cholesterol-monitor.html", StatCode.TOTAL_CHOLESTEROL))
+        this.view.addMonitorPage(new MonitorPage("/resources/total_cholesterol/", StatCode.TOTAL_CHOLESTEROL))
     }
 
     /**
@@ -90,15 +91,15 @@ export default class Controller {
      * @param statCode statCode enumeration for selecting monitor
      * @returns a Promise object that will return the HTML data in string form
      */
-    public monitorListPage(statCode: StatCode) : Promise<string>{
+    public monitorListPage(statCode: StatCode, listType : ListType) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         if (user !== undefined){
             let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitor(statCode)?.getPatientsWithMeasurement();
             let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitor(statCode)?.toJSON();
             if (monitor === undefined || monitorInfo === undefined){
-                return this.view.monitorListPage(statCode, user, [], null);
+                return this.view.monitorListPage(statCode, listType, user, [], null);
             }
-            return this.view.monitorListPage(statCode, user, monitor, monitorInfo);
+            return this.view.monitorListPage(statCode, listType, user, monitor, monitorInfo);
         }
         return this.loginPage();
     }
@@ -159,14 +160,6 @@ export default class Controller {
             return this.view.loadingPage(user);
         }
         return this.loginPage();
-    }
-
-    /**
-     * Create a new Monitor
-     * @param statCode statCode of new Monitor
-     */
-    public addMonitor(statCode: StatCode) : void {
-        this.model.addMonitor(statCode);
     }
 
     /**

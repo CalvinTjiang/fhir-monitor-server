@@ -64,18 +64,17 @@ export default class Practitioner {
                     if (resource.resourceType === "Patient"){
                         if (resource.deceasedDateTime === undefined){
                             totalPatient++;
-                            let address : Address = new Address(
-                                resource.address[0].city,
-                                resource.address[0].state,
-                                resource.address[0].country
-                            );
                             this.patients[resource.id] = (new Patient(
                                 resource.id,
                                 resource.name[0].given[0],
                                 resource.name[0].family,
                                 new Date(resource.birthDate),
                                 resource.gender,
-                                address
+                                new Address(
+                                    resource.address[0].city,
+                                    resource.address[0].state,
+                                    resource.address[0].country
+                                )
                             ))
                         }
                     }
@@ -104,7 +103,6 @@ export default class Practitioner {
 
         // construct query string for link to search for Observations
         Object.keys(this.patients).forEach(id => {
-            let patient: Patient = this.patients[id];
             if (patientString.length !== 0) {
                 patientString += "%2C";
             }

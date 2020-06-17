@@ -26,8 +26,7 @@ export default class Application{
                     return false;
                 }
                 // Implement checking
-                let entry = data.entry[0];
-                let resource = entry.resource
+                let resource = data.entry[0].resource
                 let identifier : string = resource.identifier[0].system + "|" + resource.identifier[0].value;
                 let name : string = resource.name[0].prefix[0] + " " + resource.name[0].given[0] + " " + resource.name[0].family;
                 let email : string = resource.telecom[0].value;
