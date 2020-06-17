@@ -33,12 +33,14 @@ export default class Application{
                 let email : string = resource.telecom[0].value;
                 this.user = new Practitioner(identifier, name, email);
                 this.addMonitor(StatCode.TOTAL_CHOLESTEROL);
+                this.addMonitor(StatCode.BLOOD_PRESSURE);
                 return this.user.getFHIRPatient("")
                     .then((res : boolean)=>{
                         if (this.user === null){
                             return false;
                         }
-                        this.user.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL, "")
+                        this.user.getFHIRPatientMeasurement(StatCode.TOTAL_CHOLESTEROL, "");
+                        this.user.getFHIRPatientMeasurement(StatCode.BLOOD_PRESSURE, "");
                         return true;
                     });
             });

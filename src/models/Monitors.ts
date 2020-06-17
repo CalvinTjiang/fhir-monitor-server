@@ -2,6 +2,7 @@ import StatCode from "./StatCode";
 import Monitor from "./Monitor";
 import CholesterolMonitor from "./CholesterolMonitor";
 import Patient from "./Patient";
+import BloodPressureMonitor from "./BloodPressureMonitor";
 
 /**
  *  class Monitors which are aggregate of monitor
@@ -18,6 +19,11 @@ export default class Monitors {
             case(StatCode.TOTAL_CHOLESTEROL):
                 this.monitors[statCode] = new CholesterolMonitor();
                 break;
+
+            case(StatCode.BLOOD_PRESSURE):
+                this.monitors[statCode] = new BloodPressureMonitor();
+                break;
+                
             default:
                 break;
         }

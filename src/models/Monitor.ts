@@ -4,7 +4,7 @@ import Patient, { IPatient } from "./Patient";
 import Measurement, { IMeasurement } from "./Measurement";
 export interface IMonitorPair{
     patient : IPatient,
-    measurement : IMeasurement | null
+    measurements : Array<IMeasurement> | null
 }
 export interface IMonitor{
     statCode : string,
@@ -34,21 +34,27 @@ export default abstract class Monitor extends Subject{
      * Get the patient details and measurement detail
      * @returns array of object that contain the patient and measurement details.
      */
-    public getPatientsWithMeasurement() : Array<IMonitorPair>{
+    public getPatientsWithMeasurements() : Array<IMonitorPair>{
         let copyPatients : Array<IMonitorPair> = [];
         for (let id of Object.keys(this.patients)){
             let currentPatient : Patient = this.patients[id];
-            let measurement : Measurement | null = currentPatient.getMeasurement(this.statCode);
-            if (measurement === null){
+            let measurements : Array<Measurement> | null = currentPatient.getMeasurements(this.statCode);
+            if (measurements === null){
                 copyPatients.push({
                     patient : currentPatient.toJSON(), 
-                    measurement : measurement
+                    measurements : measurements
                 });
             } else {
-                copyPatients.push({
+                let copyPatient : IMonitorPair = {
                     patient : currentPatient.toJSON(), 
-                    measurement : measurement.toJSON()
-                });
+                    measurements : []
+                };
+                measurements.forEach(element => {
+                    if (copyPatient.measurements != null) {
+                        copyPatient.measurements.push(element.toJSON());
+                    }
+                })
+                copyPatients.push(copyPatient);
             }
         }
         return copyPatients;

@@ -28,7 +28,8 @@ export default class Controller {
         let controllerObserver:ControllerObserver = new ControllerObserver(StatCode.TOTAL_CHOLESTEROL, socketio);
         this.observers.push(controllerObserver);
         
-        this.view.addMonitorPage(new MonitorPage("/resources/total_cholesterol/", StatCode.TOTAL_CHOLESTEROL))
+        this.view.addMonitorPage(new MonitorPage("/resources/total_cholesterol/", StatCode.TOTAL_CHOLESTEROL));
+        this.view.addMonitorPage(new MonitorPage("/resources/blood_pressure/", StatCode.BLOOD_PRESSURE));
     }
 
     /**
@@ -94,7 +95,7 @@ export default class Controller {
     public monitorListPage(statCode: StatCode, listType : ListType) : Promise<string>{
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         if (user !== undefined){
-            let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.getPatientsWithMeasurement();
+            let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.getPatientsWithMeasurements();
             let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.toJSON();
             if (monitor === undefined || monitorInfo === undefined){
                 return this.view.monitorListPage(statCode, listType, user, [], null);
@@ -111,7 +112,7 @@ export default class Controller {
      */
     public monitorSelectionPage(statCode: StatCode) : Promise<string> {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
-        let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getPatientsWithMeasurement(statCode);
+        let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getPatientsWithMeasurements(statCode);
         if (user !== undefined){
             if (monitor !== undefined){
                 return this.view.monitorSelectionPage(statCode, user, monitor);
