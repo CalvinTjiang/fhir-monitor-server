@@ -134,6 +134,11 @@ export default class CholesterolMonitor extends Monitor {
         this.calculateAverageTotalCholesterol();
     }
 
+    public updateInfo(info : IMonitor) : boolean{
+        this.calculateAverageTotalCholesterol();
+        return false;
+    }
+    
     public toJSON(): ICholesterolMonitor{
         return {
             statCode : this.getStatCode(),

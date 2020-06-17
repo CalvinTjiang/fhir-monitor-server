@@ -89,12 +89,13 @@ export default class MonitorPage{
      * @param user an IPractitioner object that contain the currently logged in user data
      * @returns a Promise object that will return the HTML data in string form
      */
-    public settingPage(user : IPractitioner, interval : number): Promise<string>{
+    public settingPage(user : IPractitioner, interval : number, monitorInfo : IMonitor): Promise<string>{
         return ejs.renderFile(
             this.resourcePath + "setting.html", {
                 user : user,
                 statCode : this.statCode,
-                interval : interval
+                interval : interval,
+                info : monitorInfo
             })
     }
 }

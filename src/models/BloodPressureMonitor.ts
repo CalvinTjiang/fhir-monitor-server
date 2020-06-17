@@ -141,6 +141,12 @@ export default class BloodPressureMonitor extends Monitor {
         super.addPatient(patient);
     }
 
+    public updateInfo(info : IBloodPressureMonitor) : boolean{
+        this.diastolicLimit = info.diastolicLimit;
+        this.systolicLimit = info.systolicLimit;
+        return true;
+    }
+
     public toJSON(): IBloodPressureMonitor{
         return {
             statCode : this.getStatCode(),

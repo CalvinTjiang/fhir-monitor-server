@@ -70,8 +70,8 @@ export default class GUI{
      * @param monitor an Array of IMonitorPair object that contain the details of patient and its measurement according to statCode
      * @returns a Promise object that will return the HTML data in string form
      */
-    public monitorListPage(statCode : StatCode, listType : ListType, user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor | null): Promise<string>{
-        if (monitorInfo !== null){
+    public monitorListPage(statCode : StatCode, listType : ListType, user : IPractitioner, monitor : Array<IMonitorPair>, monitorInfo : IMonitor | undefined): Promise<string>{
+        if (monitorInfo !== undefined){
             for (let monitorPage of this.monitorPages){
                 if (monitorPage.getStatCode() === statCode){
                     return monitorPage.listPage(listType, user, monitor, monitorInfo);
@@ -103,10 +103,12 @@ export default class GUI{
      * @param user an IPractitioner object that contain the currently logged in user data
      * @returns a Promise object that will return the HTML data in string form
      */
-    public monitorSettingPage(statCode : StatCode, user : IPractitioner, interval : number): Promise<string>{
-        for (let monitorPage of this.monitorPages){
-            if (monitorPage.getStatCode() === statCode){
-                return monitorPage.settingPage(user, interval);
+    public monitorSettingPage(statCode : StatCode, user : IPractitioner, interval : number, monitorInfo : IMonitor | undefined): Promise<string>{
+        if (monitorInfo !== undefined){
+            for (let monitorPage of this.monitorPages){
+                if (monitorPage.getStatCode() === statCode){
+                    return monitorPage.settingPage(user, interval, monitorInfo);
+                }
             }
         }
         return this.notFoundPage(user);

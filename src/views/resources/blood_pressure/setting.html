@@ -178,7 +178,7 @@
                                                     <label for="hf-email" class=" form-control-label">Diastolic Limits</label>
                                                 </div>
                                                 <div class="col-12 col-md-9">
-                                                    <input type="number" id="diastolicLimit" name="diastolicLimit" value='<%= diastolicLimit %>' class="form-control" min="0">
+                                                    <input type="number" id="diastolicLimit" name="diastolicLimit" value='<%= info.diastolicLimit %>' class="form-control" min="0">
                                                     <span class="help-block">Diastolic limits must be a positive number</span>
                                                 </div>
                                             </div>
@@ -187,7 +187,7 @@
                                                     <label for="hf-email" class=" form-control-label">Systolic Limits</label>
                                                 </div>
                                                 <div class="col-12 col-md-9">
-                                                    <input type="number" id="systolicLimit" name="systolicLimit" value='<%= systolicLimit %>' class="form-control" min="0">
+                                                    <input type="number" id="systolicLimit" name="systolicLimit" value='<%= info.systolicLimit %>' class="form-control" min="0">
                                                     <span class="help-block">Systolic limits must be a positive number</span>
                                                 </div>
                                             </div>
@@ -222,6 +222,14 @@
         function update(interval, diastolicLimit, systolicLimit, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/info/`, {
                 method : "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    diastolicLimit: diastolicLimit, 
+                    systolicLimit: systolicLimit
+                })
             })
             redirectToTableView(statCode);
         }

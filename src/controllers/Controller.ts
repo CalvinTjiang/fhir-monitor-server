@@ -98,7 +98,7 @@ export default class Controller {
             let monitor: Array<IMonitorPair> | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.getPatientsWithMeasurements();
             let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.toJSON();
             if (monitor === undefined || monitorInfo === undefined){
-                return this.view.monitorListPage(statCode, listType, user, [], null);
+                return this.view.monitorListPage(statCode, listType, user, [], monitorInfo);
             }
             return this.view.monitorListPage(statCode, listType, user, monitor, monitorInfo);
         }
@@ -131,8 +131,9 @@ export default class Controller {
         let user: IPractitioner | undefined = this.model.getUser()?.toJSON();
         let monitor: Monitor | undefined | null = this.model.getUser()?.getMonitors().getMonitor(statCode);
         if (user !== undefined ){
+            let monitorInfo: IMonitor | undefined = this.model.getUser()?.getMonitors().getMonitor(statCode)?.toJSON();
             if (monitor !== null && monitor !== undefined){
-                return this.view.monitorSettingPage(statCode, user, monitor.getUpdateInterval() / 1000);
+                return this.view.monitorSettingPage(statCode, user, monitor.getUpdateInterval() / 1000, monitorInfo);
             }
             return this.view.noPatientPage(user);
         }
@@ -189,5 +190,15 @@ export default class Controller {
      */
     public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
         return this.model.updateMonitorInterval(statCode, interval);
+    }
+
+    /**
+     * Update a certain monitor's info specified by the statcode
+     * @param statCode statcode of monitor
+     * @param info the new interval measured in millisecond
+     * @returns a boolean | undefined indicated if the interval was updated or not.
+     */
+    public updateMonitorInfo(statCode:StatCode, info:IMonitor) : boolean | undefined{
+        return this.model.updateMonitorInfo(statCode, info);
     }
 }

@@ -3,6 +3,7 @@ import Observer from "../observers/Observer";
 import fetch from "node-fetch";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
+import { IMonitor } from "./Monitor";
 
 export default class Application{
     private user : Practitioner | null;
@@ -100,5 +101,15 @@ export default class Application{
      */
     public updateMonitorInterval(statCode:StatCode, interval:number) : boolean | undefined{
         return this.user?.getMonitors().getMonitor(statCode)?.setUpdateInterval(interval)
+    }
+
+    /**
+     * Update a certain monitor's infospecified by the statcode
+     * @param statCode statcode of monitor
+     * @param info the new interval measured in millisecond
+     * @returns a boolean | undefined indicated if the interval was updated or not.
+     */
+    public updateMonitorInfo(statCode:StatCode, info:IMonitor) : boolean | undefined{
+        return this.user?.getMonitors().getMonitor(statCode)?.updateInfo(info);
     }
 }

@@ -138,6 +138,6 @@ export default abstract class Monitor extends Subject{
      * @returns a promise boolean that indicate if any update has occurs
      */
     protected abstract getFHIRData() : Promise<boolean>;
-
-    public abstract toJSON(): IMonitor;
+    public abstract updateInfo(info : IMonitor) : boolean;
+    public abstract toJSON() : IMonitor;
 }
