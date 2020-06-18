@@ -1,18 +1,15 @@
-function redirectToSelection(statCode){
-    location.href = `http://localhost:8080/monitor/${statCode}/selection`
+
+function redirectToMonitorView(statCode, type){
+    location.href = `http://localhost:8080/monitor/${statCode}/${type}`
 }
 
-
-function redirectToSetting(statCode){
-    location.href = `http://localhost:8080/monitor/${statCode}/setting`
+function removeMonitoredPatient(id, statCode){
+    fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
+        method : "DELETE"
+    })
+    window.location.reload();
 }
 
-
-function redirectToGraphView(statCode){
-    location.href = `http://localhost:8080/monitor/${statCode}/graph`
-}
-
-
-function redirectToTableView(statCode){
-    location.href = `http://localhost:8080/monitor/${statCode}/table`
+function redirectToPatientDetails(id){
+    location.href = `http://localhost:8080/patient/${id}`
 }

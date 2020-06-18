@@ -163,19 +163,16 @@
                                         <h3 class="title-5 m-b-35" style="margin-top: 10px;">Systolic Historical Graph View (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: #333333;"onclick="redirectToTableView('55284-4')">
-                                            <i class="zmdi zmdi-view-list"></i>Table View</button>
-    
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToTableView('55284-4')">
-                                            <i class="zmdi zmdi-plus"></i>Add Patient</button>
-                                            
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToSetting('55284-4')">
-                                            <i class="zmdi zmdi-settings"></i>Setting</button>
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: #00B5E9;" onclick="redirectToMonitorView('8480-6', 'textual')">
+                                            <i class="zmdi zmdi-collection-text"></i>Textual View</button>
+
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: #333333;"onclick="redirectToMonitorView('55284-4', 'table')">
+                                            <i class="zmdi zmdi-view-list"></i>Blood Pressure Monitors</button>
                                     </div>
                                 </div>
                             </div>
                             <% for (var i = 0; i< db.length; i++) { %>
-                                <div class="col-lg-6">
+                                <div class="col-xl-6 col-lg-12">
                                     <div class="au-card m-b-30">
                                         <div class="au-card-inner">
                                             <h3 class="title-2 m-b-40"><%= db[i].patient.givenName %> <%= db[i].patient.familyName %> - Systolic History</h3>

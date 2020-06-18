@@ -164,13 +164,13 @@
                                         <h3 class="title-5 m-b-35" style="margin-top: 10px;">Blood Pressure Monitored Patient (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: rgb(240, 125, 132);" onclick="redirectToGraphView('8480-6')">
-                                            <i class="zmdi zmdi-chart"></i>Graph View</button>
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: rgb(240, 125, 132);" onclick="redirectToMonitorView('8480-6', 'graph')">
+                                            <i class="zmdi zmdi-chart"></i>Systolic History Graph</button>
 
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToMonitorView('<%= statCode %>', 'selection')">
                                             <i class="zmdi zmdi-plus"></i>Add Patient</button>
                                             
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToSetting('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToMonitorView('<%= statCode %>', 'setting')">
                                             <i class="zmdi zmdi-settings"></i>Setting</button>
                                     </div>
                                 </div>
@@ -229,7 +229,6 @@
                             <div class="col-md-12">
                                 <div class="copyright">
                                     <p>Current Diastolic Limit = <%= info.diastolicLimit %> mg/dL</a>.</p>
-                                </div><div class="copyright">
                                     <p>Current Systolic Limit = <%= info.systolicLimit %> mg/dL</a>.</p>
                                 </div>
                             </div>
@@ -258,13 +257,6 @@
                 },
                 body: JSON.stringify([id])
             })
-        }
-
-        function removeMonitoredPatient(id, statCode){
-            fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
-                method : "DELETE"
-            })
-            window.location.reload();
         }
 
         let socketio = io("http://localhost:8080");

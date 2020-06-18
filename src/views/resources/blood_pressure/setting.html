@@ -220,6 +220,9 @@
     <script src='http://localhost:8080/js/utility.js'></script>
     <script>
         function update(interval, diastolicLimit, systolicLimit, statCode){
+            fetch(`http://localhost:8080/api/monitor/${statCode}/interval/${interval}`, {
+                method : "POST"
+            })
             fetch(`http://localhost:8080/api/monitor/${statCode}/info/`, {
                 method : "POST",
                 headers: {
@@ -231,13 +234,13 @@
                     systolicLimit: systolicLimit
                 })
             })
-            redirectToTableView(statCode);
+            redirectToMonitorView(statCode, 'table');
         }
         function setUpdateInterval(interval, statCode){
             fetch(`http://localhost:8080/api/monitor/${statCode}/interval/${interval}`, {
                 method : "POST"
             })
-            redirectToTableView(statCode);
+            redirectToMonitorView(statCode, 'table');
         }
     </script>
     <!-- Jquery JS-->

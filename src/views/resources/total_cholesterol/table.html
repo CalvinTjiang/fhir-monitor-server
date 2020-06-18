@@ -164,13 +164,13 @@
                                         <h3 class="title-5 m-b-35" style="margin-top: 10px;">Cholesterol Monitored Patient (<%= statCode %>)</h3>
                                     </div>
                                     <div class="table-data__tool-right">
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: rgb(240, 125, 132);"onclick="redirectToGraphView('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small"  style="background-color: rgb(240, 125, 132);"onclick="redirectToMonitorView('<%= statCode %>', 'graph')">
                                             <i class="zmdi zmdi-chart"></i>Graph View</button>
 
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToSelection('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="redirectToMonitorView('<%= statCode %>', 'selection')">
                                             <i class="zmdi zmdi-plus"></i>Add Patient</button>
                                             
-                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToSetting('<%= statCode %>')">
+                                        <button class="au-btn au-btn-icon au-btn--green au-btn--small" style="background-color: darkslategray;" onclick="redirectToMonitorView('<%= statCode %>', 'setting')">
                                             <i class="zmdi zmdi-settings"></i>Setting</button>
                                     </div>
                                 </div>
@@ -237,13 +237,6 @@
     <script src='/socket.io/socket.io.js'></script>
     <script src='http://localhost:8080/js/utility.js'></script>
     <script>
-        function removeMonitoredPatient(id, statCode){
-            fetch(`http://localhost:8080/api/monitor/${statCode}/patient/${id}`, {
-                method : "DELETE"
-            })
-            window.location.reload();
-        }
-
         let socketio = io("http://localhost:8080");
         let statCode = "<%= statCode %>";
         socketio.on(statCode, (msg) => {
