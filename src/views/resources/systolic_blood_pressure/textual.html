@@ -172,9 +172,13 @@
                                 </div>
                             </div>
                             <% for (var i = 0; i< db.length; i++) { %>
-                                <div class="col-xl-4 col-lg-6 col-sm-12">
+                                <div class="col-xl-6 col-lg-12">
                                     <div class="top-campaign">
-                                        <h3 class="title-3 m-b-30"><%= db[i].patient.givenName %> <%= db[i].patient.familyName %> - Systolic History</h3>
+                                        <h3 class="title-3 m-b-30"><%= db[i].patient.givenName %> <%= db[i].patient.familyName %> - History 
+                                            <button style="position: absolute; right: 3.25vw;"class="item" data-toggle="tooltip" data-placement="top" title="Delete" onclick="removeMonitoredPatient('<%= db[i].patient.id %>', '<%= statCode %>')">
+                                                <i class="zmdi zmdi-delete"></i>
+                                            </button>
+                                        </h3>
                                         <div class="table-responsive">
                                             <table class="table table-top-campaign">
                                                 <tbody>
@@ -198,6 +202,14 @@
                                     </div>
                                 </div>
                             <% } %>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Current Diastolic Limit = <strong><%= info.diastolicLimit %> mg/dL</strong></p>
+                                    <p>Current Systolic Limit = <strong><%= info.systolicLimit %> mg/dL</strong></p>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">

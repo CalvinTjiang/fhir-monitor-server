@@ -175,12 +175,25 @@
                                 <div class="col-xl-6 col-lg-12">
                                     <div class="au-card m-b-30">
                                         <div class="au-card-inner">
-                                            <h3 class="title-2 m-b-40"><%= db[i].patient.givenName %> <%= db[i].patient.familyName %> - Systolic History</h3>
+                                            <h3 class="title-2 m-b-40"><%= db[i].patient.givenName %> <%= db[i].patient.familyName %> - History 
+                                                <button style="position: absolute; right: 5vw;"class="item" data-toggle="tooltip" data-placement="top" title="Delete" onclick="removeMonitoredPatient('<%= db[i].patient.id %>', '<%= statCode %>')">
+                                                    <i class="zmdi zmdi-delete"></i>
+                                                </button>
+                                            </h3>
+                                            
                                             <canvas id='<%= db[i].patient.id %>'></canvas>
                                         </div>
                                     </div>
                                 </div>
                             <% } %>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
+                                    <p>Current Diastolic Limit = <strong><%= info.diastolicLimit %> mg/dL</strong></p>
+                                    <p>Current Systolic Limit = <strong><%= info.systolicLimit %> mg/dL</strong></p>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
@@ -263,7 +276,7 @@
                             hover: {mode: 'nearest',intersect: true},
                             scales: {
                                 xAxes: [{ticks: {fontFamily: "Poppins"}}],
-                                yAxes: [{ticks: {beginAtZero: false, fontFamily: "Poppins"}}]
+                                yAxes: [{ticks: {suggestedMin: 100, fontFamily: "Poppins"}}]
                             }
                         }
                     });

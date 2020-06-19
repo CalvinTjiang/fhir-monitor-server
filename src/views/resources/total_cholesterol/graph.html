@@ -184,6 +184,13 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="copyright">
+                                    <p>Current Average Total Cholesterol = <strong><%= info.averageTotalCholesterol.toFixed(5) %> mg/dL</strong></a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="copyright">
                                     <p>Copyright © 2018 Colorlib. All rights reserved. Template by <a href="https://colorlib.com">Colorlib</a>.</p>
                                 </div>
                             </div>
@@ -221,12 +228,30 @@
     <!-- Main JS-->
     <script src='http://localhost:8080/js/utility.js'></script>
     <script>
+        const NORMAL_BORDER_COLOR = "rgba(0, 123, 255, 0.9)";
+        const NORMAL_BACKGROUND_COLOR = "rgba(0, 123, 255, 0.5)";
+        const HIGH_BORDER_COLOR = "rgba(206, 35, 46, 0.9)";
+        const HIGH_BACKGROUND_COLOR = "rgba(240, 125, 132, 0.5)";
+
         let database = JSON.parse('<%- JSON.stringify(db) %>');
+        let info = JSON.parse('<%- JSON.stringify(info) %>');
+
         let nameLabels = [];
         let values = []
+        let borderColors = []
+        let backgroundColors= []
+
         database.forEach(element => {
             nameLabels.push(element.patient.givenName);
             values.push(element.measurements[0].totalCholesterol);
+            if (element.measurements[0].totalCholesterol > info.averageTotalCholesterol){
+                borderColors.push(HIGH_BORDER_COLOR);
+                backgroundColors.push(HIGH_BACKGROUND_COLOR);
+            } else {
+                borderColors.push(NORMAL_BORDER_COLOR);
+                backgroundColors.push(NORMAL_BACKGROUND_COLOR);
+
+            }
         });
 
         (function ($) {
@@ -244,9 +269,9 @@
                             datasets: [{
                                 label: "Total Cholesterol",
                                 data: values,
-                                borderColor: "rgba(206, 35, 46, 0.9)",
+                                borderColor: borderColors,
                                 borderWidth: "2",
-                                backgroundColor: "rgba(240, 125, 132, 0.5)"
+                                backgroundColor: backgroundColors
                             }]
                         },
                         options: {
@@ -256,7 +281,7 @@
                             },
                             scales: {
                                 xAxes: [{ticks: {fontFamily: "Poppins"}}],
-                                yAxes: [{ticks: {beginAtZero: true, fontFamily: "Poppins"}}]
+                                yAxes: [{ticks: {suggestedMin: 150, fontFamily: "Poppins"}}]
                             }
                         }
                     });
