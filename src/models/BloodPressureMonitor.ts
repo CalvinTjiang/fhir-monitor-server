@@ -1,5 +1,5 @@
-import Monitor, { IMonitor } from "./Monitor";
 import fetch from "node-fetch";
+import Monitor, { IMonitor } from "./Monitor";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";
@@ -98,7 +98,7 @@ export default class BloodPressureMonitor extends Monitor {
 
                     // Update the measurement
                     if (oldMeasurement !== null){
-                        if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                        if (oldMeasurement.getEffectiveDateTime().getTime() < newMeasurement.effectiveDateTime.getTime()){
                             updated = oldMeasurement.update(newMeasurement) || updated;
                         } 
                     } else {

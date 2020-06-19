@@ -1,8 +1,10 @@
-import Practitioner from "./Practitioner";
-import Observer from "../observers/Observer";
 import fetch from "node-fetch";
-import StatCode from "./StatCode";
+
+import Observer from "../observers/Observer";
+
+import Practitioner from "./Practitioner";
 import Patient from "./Patient";
+import StatCode from "./StatCode";
 import { IMonitor } from "./Monitor";
 
 export default class Application{

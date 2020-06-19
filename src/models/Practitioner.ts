@@ -18,7 +18,6 @@ export interface IPractitioner{
  */
 export default class Practitioner {
     private identifier: string;
-    // private patients: Array<Patient>;
     private patients: {[id: string]: Patient};
     private monitors: Monitors;
     private name : string;
@@ -201,7 +200,7 @@ export default class Practitioner {
                 }                             
                 // Update the measurement if the patient has previous measurement, if not add ne measurement
                 if (oldMeasurement !== null){
-                    if (oldMeasurement.getEffectiveDateTime() < newMeasurement.effectiveDateTime){
+                    if (oldMeasurement.getEffectiveDateTime().getTime() < newMeasurement.effectiveDateTime.getTime()){
                         oldMeasurement.update(newMeasurement);
                         return 1;
                     }

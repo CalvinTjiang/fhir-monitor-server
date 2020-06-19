@@ -1,5 +1,5 @@
-import Monitor, { IMonitor } from "./Monitor";
 import fetch from "node-fetch";
+import Monitor, { IMonitor } from "./Monitor";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
 import Measurement from "./Measurement";

@@ -1,10 +1,8 @@
-
-import Monitor, { IMonitor } from "./Monitor";
 import fetch from "node-fetch";
+import Monitor, { IMonitor } from "./Monitor";
 import StatCode from "./StatCode";
 import Patient from "./Patient";
-import Measurement from "./Measurement";
-import SystolicMeasurement, { ISystolicMeasurement } from "./SystolicMeasurement";
+import SystolicMeasurement from "./SystolicMeasurement";
 
 export interface ISystolicMonitor extends IMonitor{
     systolicLimit : number

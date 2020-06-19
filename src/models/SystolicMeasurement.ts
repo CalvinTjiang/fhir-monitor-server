@@ -1,4 +1,3 @@
-
 import StatCode from "./StatCode";
 import Measurement, { IMeasurement } from "./Measurement";
 
